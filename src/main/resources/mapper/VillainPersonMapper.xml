@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.namelist.mapper.VillainPersonMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="org.example.namelist.entity.VillainPerson">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="birth_year" property="birthYear"/>
+        <result column="death_year" property="deathYear"/>
+        <result column="category" property="category"/>
+        <result column="nationality" property="nationality"/>
+        <result column="brief_intro" property="briefIntro"/>
+        <result column="full_bio" property="fullBio"/>
+        <result column="photo_url" property="photoUrl"/>
+        <result column="extend_id" property="extendId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询列 -->
+    <sql id="Base_Column_List">
+        id, name, birth_year, death_year, category, nationality, brief_intro, full_bio, photo_url, extend_id, status, create_time, update_time
+    </sql>
+
+    <!-- 根据分类查询 (只查询状态为1的记录) -->
+    <select id="selectByCategory" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM villain_person
+        WHERE category = #{category} AND status = 1
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据姓名搜索 (模糊查询) -->
+    <select id="searchByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM villain_person
+        WHERE name LIKE CONCAT('%', #{name}, '%') AND status = 1
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据分类查询数量 -->
+    <select id="selectCountByCategory" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM villain_person WHERE category = #{category} AND status = 1
+    </select>
+
+</mapper>

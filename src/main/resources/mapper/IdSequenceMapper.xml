@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.namelist.mapper.IdSequenceMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="org.example.namelist.entity.IdSequence">
+        <id column="category_code" property="categoryCode"/>
+        <result column="current_value" property="currentValue"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询列 -->
+    <sql id="Base_Column_List">
+        category_code, current_value, update_time
+    </sql>
+
+    <!-- 更新当前值 -->
+    <update id="updateCurrentValue">
+        UPDATE id_sequence
+        SET current_value = #{currentValue}
+        WHERE category_code = #{categoryCode}
+    </update>
+
+</mapper>

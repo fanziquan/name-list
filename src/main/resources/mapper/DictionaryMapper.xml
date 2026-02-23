@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.namelist.mapper.DictionaryMapper">
+
+    <resultMap id="BaseResultMap" type="org.example.namelist.entity.Dictionary">
+        <result column="dict_code" property="dictCode"/>
+        <result column="dict_name" property="dictName"/>
+        <result column="dict_item" property="dictItem"/>
+        <result column="item_name" property="itemName"/>
+        <result column="mark" property="mark"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询列 -->
+    <sql id="Base_Column_List">
+        dict_code, dict_name, dict_item, item_name, mark, status, create_time, update_time
+    </sql>
+
+    <!-- 根据字典编码查询 -->
+    <select id="selectByDictCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM dictionary
+        WHERE dict_code = #{dictCode}
+    </select>
+
+    <!-- 根据字典编码和启用状态查询 -->
+    <select id="selectByDictCodeAndStatus" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM dictionary
+        WHERE dict_code = #{dictCode} AND status = #{status}
+    </select>
+
+    <!-- 根据标识查询 -->
+    <select id="selectByMark" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM dictionary
+        WHERE mark = #{mark}
+        ORDER BY id
+    </select>
+
+    <!-- 根据标识和启用状态查询 -->
+    <select id="selectByMarkAndStatus" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM dictionary
+        WHERE mark = #{mark} AND status = #{status}
+    </select>
+
+    <!-- 根据字典编码和字典项查询 -->
+    <select id="selectByDictCodeAndItem" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM dictionary
+        WHERE dict_code = #{dictCode} AND dict_item = #{dictItem}
+        LIMIT 1
+    </select>
+
+</mapper>

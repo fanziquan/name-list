@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 名人名单管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .login-card {
+            max-width: 400px;
+            margin: 100px auto;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border: none;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card login-card">
+            <div class="card-header">
+                <h4 class="mb-0">名人名单管理系统</h4>
+                <p class="mb-0 small">后台管理登录</p>
+            </div>
+            <div class="card-body p-4">
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="username" name="username" required placeholder="请输入用户名">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="password" name="password" required placeholder="请输入密码">
+                    </div>
+                    <div id="errorMsg" class="alert alert-danger d-none" role="alert"></div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">登录</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 检查是否是 token 过期跳转
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('expired') === '1') {
+                const errorMsg = document.getElementById('errorMsg');
+                errorMsg.textContent = '登录已过期，请重新登录';
+                errorMsg.classList.remove('d-none');
+            }
+            // 检查是否是登出跳转
+            if (urlParams.get('logout') === '') {
+                const errorMsg = document.getElementById('errorMsg');
+                errorMsg.textContent = '您已成功退出登录';
+                errorMsg.classList.remove('d-none');
+            }
+        };
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            errorMsg.classList.add('d-none');
+
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 200) {
+                    window.location.href = '/admin/dashboard';
+                } else {
+                    errorMsg.textContent = data.message;
+                    errorMsg.classList.remove('d-none');
+                }
+            })
+            .catch(error => {
+                errorMsg.textContent = '登录失败，请稍后重试';
+                errorMsg.classList.remove('d-none');
+            });
+        });
+    </script>
+</body>
+</html>

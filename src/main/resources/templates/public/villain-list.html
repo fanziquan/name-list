@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反面人物列表 - 名人名单管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .villain-card {
+            transition: transform 0.3s;
+        }
+        .villain-card:hover {
+            transform: translateY(-5px);
+        }
+        .person-photo {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">名人名单管理系统</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/hero">正面人物</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/villain">反面人物</a>
+                    </li>
+                </ul>
+                <form class="d-flex" action="/search" method="get">
+                    <input class="form-control me-2" type="search" name="keyword" placeholder="搜索人物..." required>
+                    <button class="btn btn-outline-light" type="submit">搜索</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h3>反面人物</h3>
+            </div>
+            <div class="col-md-4">
+                <form class="d-flex" action="/villain" method="get">
+                    <input class="form-control me-2" type="search" name="keyword" placeholder="搜索反面人物..." value="${keyword!""}">
+                    <button class="btn btn-outline-danger" type="submit">搜索</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 分类筛选 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="btn-group" role="group">
+                    <a href="/villain" class="btn btn-outline-danger ${(currentCategory??)?string('', 'active')}">全部</a>
+                    <#if categories??>
+                        <#list categories as cat>
+                            <a href="/villain?category=${cat.dictItem}" class="btn btn-outline-danger ${(currentCategory == cat.dictItem)?string('active', '')}">${cat.itemName}</a>
+                        </#list>
+                    </#if>
+                </div>
+            </div>
+        </div>
+
+        <!-- 人物列表 -->
+        <div class="row">
+            <#if villains?? && villains?size gt 0>
+                <#list villains as villain>
+                    <div class="col-md-4 mb-4">
+                        <div class="card villain-card h-100 border-danger">
+                            <#if villain.photoUrl?? && villain.photoUrl != "">
+                                <img src="${villain.photoUrl}" class="card-img-top person-photo" alt="${villain.name}">
+                            <#else>
+                                <div class="card-img-top person-photo d-flex align-items-center justify-content-center bg-light">
+                                    <span class="text-muted">暂无照片</span>
+                                </div>
+                            </#if>
+                            <div class="card-body">
+                                <h5 class="card-title text-danger">${villain.name!"未知"}</h5>
+                                <p class="card-text text-muted">
+                                    <span class="badge bg-danger"><#if categoryNames??>${categoryNames[villain.category]!villain.category}<#else>${villain.category}</#if></span>
+                                    ${villain.lifeSpan!""}
+                                </p>
+                                <p class="card-text small">${villain.briefIntro!"暂无简介"}</p>
+                                <a href="/villain/${villain.id}" class="btn btn-danger btn-sm">查看详情</a>
+                            </div>
+                        </div>
+                    </div>
+                </#list>
+            <#else>
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        暂无符合条件的反面人物
+                    </div>
+                </div>
+            </#if>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <p class="mb-0">&copy; 2024 名人名单管理系统</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

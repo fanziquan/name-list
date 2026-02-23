@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反面人物管理 - 名人名单管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin/dashboard">管理系统</a>
+            <div class="d-flex">
+                <a href="/admin/logout" class="btn btn-outline-light btn-sm">退出登录</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <nav class="col-md-2 bg-light p-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">仪表盘</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/hero/list">正面人物管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/villain/list">反面人物管理</a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- 主要内容 -->
+            <main class="col-md-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>反面人物管理</h3>
+                    <a href="/admin/villain/add" class="btn btn-danger">添加反面人物</a>
+                </div>
+                <!-- 搜索 -->
+                <form action="/admin/villain/list" method="get" class="mb-3">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" name="keyword" class="form-control" placeholder="搜索姓名..." value="${keyword!""}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-outline-danger">搜索</button>
+                        </div>
+                    </div>
+                </form>
+                <!-- 列表 -->
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>姓名</th>
+                            <th>分类</th>
+                            <th>生卒年</th>
+                            <th>国籍</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <#if villains?? && villains?size gt 0>
+                            <#list villains as villain>
+                                <tr>
+                                    <td>${villain.id}</td>
+                                    <td>${villain.name}</td>
+                                    <td><span class="badge bg-danger"><#if categoryNames??>${categoryNames[villain.category]!villain.category}<#else>${villain.category}</#if></span></td>
+                                    <td>${villain.lifeSpan!""}</td>
+                                    <td>${villain.nationality!""}</td>
+                                    <td>
+                                        <a href="/admin/villain/edit/${villain.id}" class="btn btn-sm btn-outline-danger">编辑</a>
+                                        <button onclick="deleteVillain('${villain.id}')" class="btn btn-sm btn-outline-secondary">删除</button>
+                                    </td>
+                                </tr>
+                            </#list>
+                        <#else>
+                            <tr>
+                                <td colspan="6" class="text-center">暂无数据</td>
+                            </tr>
+                        </#if>
+                    </tbody>
+                </table>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function deleteVillain(id) {
+            if (confirm('确定要删除此人物吗？')) {
+                fetch('/admin/villain/delete/' + id, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === 200) {
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+            }
+        }
+    </script>
+</body>
+</html>

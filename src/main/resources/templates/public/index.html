@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>名人名单管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --hero-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --villain-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+        .category-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .category-header {
+            padding: 16px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .category-header.hero {
+            background: var(--hero-gradient);
+        }
+        .category-header.villain {
+            background: var(--villain-gradient);
+        }
+        .category-header h5 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .person-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .person-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .person-item:last-child {
+            border-bottom: none;
+        }
+        .person-item:hover {
+            background: #f8f9fa;
+        }
+        .person-name {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .person-name:hover {
+            color: #667eea;
+        }
+        .person-life {
+            font-size: 12px;
+            color: #999;
+        }
+        .empty-message {
+            padding: 40px 20px;
+            text-align: center;
+            color: #999;
+        }
+        .person-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+            color: #666;
+        }
+        .person-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        .person-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .person-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .person-list::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        .person-list::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-people-fill"></i> 名人名单管理系统
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">首页</a>
+                    </li>
+                </ul>
+                <form class="d-flex" action="/search" method="get">
+                    <input class="form-control me-2" type="search" name="keyword" placeholder="搜索人物..." required>
+                    <button class="btn btn-outline-light" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container mt-4">
+        <!-- 标题 -->
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">
+                <i class="bi bi-collection-fill text-primary"></i> 名人名单
+            </h2>
+            <p class="text-muted">点击姓名查看人物详情</p>
+        </div>
+
+        <!-- 正面人物分类卡片 -->
+        <div class="row mb-4">
+            <#if heroCategories??>
+                <#list heroCategories as cat>
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="category-card">
+                            <div class="category-header hero">
+                                <h5>
+                                    <i class="bi bi-star-fill"></i> ${cat.name}
+                                </h5>
+                                <span class="badge bg-light text-dark">${cat.count}人</span>
+                            </div>
+                            <div class="person-list" id="hero-${cat.code}">
+                                <div class="empty-message">
+                                    <i class="bi bi-hourglass-split"></i> 加载中...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </#list>
+                <#if heroCategories?size == 0>
+                    <div class="col-12">
+                        <div class="empty-message">
+                            <i class="bi bi-inbox fs-1"></i>
+                            <p>暂无正面人物</p>
+                        </div>
+                    </div>
+                </#if>
+            <#else>
+                <div class="col-12">
+                    <div class="empty-message">
+                        <i class="bi bi-inbox fs-1"></i>
+                        <p>暂无正面人物</p>
+                    </div>
+                </div>
+            </#if>
+        </div>
+
+        <!-- 反面人物分类卡片 -->
+        <div class="row mb-4">
+            <#if villainCategories??>
+                <#list villainCategories as cat>
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="category-card">
+                            <div class="category-header villain">
+                                <h5>
+                                    <i class="bi bi-exclamation-circle-fill"></i> ${cat.name}
+                                </h5>
+                                <span class="badge bg-light text-dark">${cat.count}人</span>
+                            </div>
+                            <div class="person-list" id="villain-${cat.code}">
+                                <div class="empty-message">
+                                    <i class="bi bi-hourglass-split"></i> 加载中...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </#list>
+                <#if villainCategories?size == 0>
+                    <div class="col-12">
+                        <div class="empty-message">
+                            <i class="bi bi-inbox fs-1"></i>
+                            <p>暂无反面人物</p>
+                        </div>
+                    </div>
+                </#if>
+            <#else>
+                <div class="col-12">
+                    <div class="empty-message">
+                        <i class="bi bi-inbox fs-1"></i>
+                        <p>暂无反面人物</p>
+                    </div>
+                </div>
+            </#if>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <p class="mb-0">&copy; 2024 名人名单管理系统</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ==================== Token 失效处理 ====================
+        // 重写 fetch 函数，添加 401 错误处理
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options = {}) {
+            return originalFetch(url, options)
+                .then(response => {
+                    // 如果响应状态为 401 (未授权)，跳转到登录页面
+                    if (response.status === 401) {
+                        // 清除可能存在的本地存储
+                        localStorage.removeItem('token');
+                        sessionStorage.removeItem('token');
+                        // 跳转到登录页面
+                        window.location.href = '/admin/login?expired';
+                        return Promise.reject(new Error('Token expired'));
+                    }
+                    return response;
+                })
+                .catch(error => {
+                    if (error.message === 'Token expired') {
+                        throw error;
+                    }
+                    return originalFetch(url, options);
+                });
+        };
+
+        // ==================== 分类数据配置 ====================
+        // 配置分类数据
+        const heroCategories = [];
+        <#if heroCategories??>
+            <#list heroCategories as cat>
+                heroCategories.push({ code: '${cat.code}', name: '${cat.name}' });
+            </#list>
+        </#if>
+
+        const villainCategories = [];
+        <#if villainCategories??>
+            <#list villainCategories as cat>
+                villainCategories.push({ code: '${cat.code}', name: '${cat.name}' });
+            </#list>
+        </#if>
+
+        // 加载人物数据
+        async function loadPersons(type, category, containerId) {
+            try {
+                console.log('加载 ' + type + ' 分类: ' + category);
+                const response = await fetch('/api/' + type + '?category=' + category);
+                const result = await response.json();
+                console.log('返回数据:', result);
+
+                const container = document.getElementById(containerId);
+
+                if (result.code === 200 && result.data && result.data.length > 0) {
+                    let html = '';
+                    result.data.forEach(function(person) {
+                        const personName = person.name || '未知';
+                        const url = type === 'hero' ? '/hero/' + person.id : '/villain/' + person.id;
+                        const lifeSpan = (person.birthYear || person.deathYear)
+                            ? (person.birthYear || '?') + ' - ' + (person.deathYear || '?')
+                            : '';
+                        const initial = personName.charAt(0).toUpperCase();
+
+                        html += '<div class="person-item">' +
+                            '<div class="person-info">' +
+                            '<div class="person-avatar">' + initial + '</div>' +
+                            '<a href="' + url + '" class="person-name">' + personName + '</a>' +
+                            '</div>' +
+                            (lifeSpan ? '<span class="person-life">' + lifeSpan + '</span>' : '') +
+                            '</div>';
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div class="empty-message"><i class="bi bi-inbox"></i><p class="mb-0">暂无数据</p></div>';
+                }
+            } catch (error) {
+                console.error('加载失败:', error);
+                document.getElementById(containerId).innerHTML = '<div class="empty-message text-danger"><i class="bi bi-x-circle"></i><p class="mb-0">加载失败</p></div>';
+            }
+        }
+
+        // 页面加载时获取所有分类数据
+        document.addEventListener('DOMContentLoaded', function() {
+            // 正面人物
+            heroCategories.forEach(function(cat) {
+                loadPersons('hero', cat.code, 'hero-' + cat.code);
+            });
+            
+            // 反面人物
+            villainCategories.forEach(function(cat) {
+                loadPersons('villain', cat.code, 'villain-' + cat.code);
+            });
+        });
+    </script>
+</body>
+</html>

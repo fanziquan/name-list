@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.namelist.mapper.PersonExtendMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="org.example.namelist.entity.PersonExtend">
+        <id column="person_id" property="personId"/>
+        <result column="person_type" property="personType"/>
+        <result column="achievements" property="achievements"/>
+        <result column="evaluation" property="evaluation"/>
+        <result column="anecdotes" property="anecdotes"/>
+        <result column="sources" property="sources"/>
+        <result column="extra_field1" property="extraField1"/>
+        <result column="extra_field2" property="extraField2"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询列 -->
+    <sql id="Base_Column_List">
+        person_id, person_type, achievements, evaluation, anecdotes, sources, extra_field1, extra_field2, create_time, update_time
+    </sql>
+
+    <!-- 插入 (使用ON DUPLICATE KEY UPDATE实现插入或更新) -->
+    <insert id="insert" parameterType="org.example.namelist.entity.PersonExtend">
+        INSERT INTO person_extend (person_id, person_type, achievements, evaluation, anecdotes, sources, extra_field1, extra_field2)
+        VALUES (#{personId}, #{personType}, #{achievements}, #{evaluation}, #{anecdotes}, #{sources}, #{extraField1}, #{extraField2})
+        ON DUPLICATE KEY UPDATE
+            person_type = #{personType},
+            achievements = #{achievements},
+            evaluation = #{evaluation},
+            anecdotes = #{anecdotes},
+            sources = #{sources},
+            extra_field1 = #{extraField1},
+            extra_field2 = #{extraField2}
+    </insert>
+
+</mapper>

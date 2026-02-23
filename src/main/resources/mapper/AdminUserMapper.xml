@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.namelist.mapper.AdminUserMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="org.example.namelist.entity.AdminUser">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="nickname" property="nickname"/>
+        <result column="role" property="role"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询列 -->
+    <sql id="Base_Column_List">
+        id, username, password, nickname, role, status, create_time, update_time
+    </sql>
+
+    <!-- 根据用户名查询 -->
+    <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM admin_user
+        WHERE username = #{username} AND status = 1
+    </select>
+
+</mapper>
