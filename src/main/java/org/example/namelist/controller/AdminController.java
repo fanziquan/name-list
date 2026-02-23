@@ -1,14 +1,25 @@
 package org.example.namelist.controller;
 
-import javax.servlet.http.HttpSession;
-import org.example.namelist.entity.*;
+import org.example.namelist.entity.Dictionary;
+import org.example.namelist.entity.HeroPerson;
+import org.example.namelist.entity.PersonExtend;
+import org.example.namelist.entity.VillainPerson;
+import org.example.namelist.service.OssService;
 import org.example.namelist.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +34,9 @@ public class AdminController {
 
     @Autowired
     private PersonService personService;
+
+    @Autowired
+    private OssService ossService;
 
     /**
      * 后台首页（仪表盘）
@@ -125,6 +139,11 @@ public class AdminController {
         HeroPerson hero = personService.getHeroById(id);
         if (hero == null) {
             return "redirect:/admin/hero/list";
+        }
+
+        // 对图片URL进行签名处理（解决私有bucket访问问题）
+        if (hero.getPhotoUrl() != null && !hero.getPhotoUrl().isEmpty()) {
+            hero.setPhotoUrl(ossService.generateSignedUrl(hero.getPhotoUrl()));
         }
 
         List<Dictionary> categories = personService.getHeroCategories();
@@ -256,6 +275,11 @@ public class AdminController {
         VillainPerson villain = personService.getVillainById(id);
         if (villain == null) {
             return "redirect:/admin/villain/list";
+        }
+
+        // 对图片URL进行签名处理（解决私有bucket访问问题）
+        if (villain.getPhotoUrl() != null && !villain.getPhotoUrl().isEmpty()) {
+            villain.setPhotoUrl(ossService.generateSignedUrl(villain.getPhotoUrl()));
         }
 
         List<Dictionary> categories = personService.getVillainCategories();
