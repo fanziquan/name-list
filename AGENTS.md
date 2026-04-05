@@ -18,6 +18,8 @@ src/main/java/org/example/namelist/
 ├── controller/                  # 控制器层
 │   ├── AdminController.java     # 后台管理控制器
 │   ├── AuthController.java      # 认证控制器
+│   ├── DictionaryController.java # 数据字典控制器
+│   ├── EventController.java     # 历史事件控制器
 │   └── PublicController.java    # 公共页面控制器
 ├── entity/                      # 实体类
 │   ├── HeroPerson.java          # 正面人物
@@ -28,6 +30,7 @@ src/main/java/org/example/namelist/
 │   └── IdSequence.java          # ID 序列生成
 ├── mapper/                      # MyBatis-Plus Mapper 接口
 └── service/                     # 业务逻辑层
+    └── DictionaryService.java   # 数据字典服务
 ```
 
 ### 文档索引
