@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${(period??)?then('编辑','添加')}时期 - 名人名单管理系统</title>
+    <title><#if period??>编辑<#else>添加</#if>时期 - 名人名单管理系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .sidebar {
@@ -59,20 +59,20 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/admin/dashboard">首页</a></li>
                         <li class="breadcrumb-item"><a href="/admin/event/period/list">时期管理</a></li>
-                        <li class="breadcrumb-item active">${(period??)?then('编辑','添加')}时期</li>
+                        <li class="breadcrumb-item active"><#if period??>编辑<#else>添加</#if>时期</li>
                     </ol>
                 </nav>
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">${(period??)?then('编辑','添加'}时期</h5>
+                        <h5 class="mb-0"><#if period??>编辑<#else>添加</#if>时期</h5>
                     </div>
                     <div class="card-body">
                         <form id="periodForm">
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">时期编码 <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="code" value="${(period.code)!''}" ${(period??)?then('readonly','required')}>
+                                    <input type="text" class="form-control" name="code" value="${(period.code)!''}" <#if period??>readonly<#else>required</#if>>
                                     <div class="form-text">如：MODERN、CONTEM（系统使用，不允许修改）</div>
                                 </div>
                                 <div class="col-md-6">
@@ -101,8 +101,8 @@
                             <div class="mb-3">
                                 <label class="form-label">状态</label>
                                 <select class="form-select" name="status">
-                                    <option value="1" ${((period.status)?? && period.status == 1)?then('selected','')}>启用</option>
-                                    <option value="0" ${((period.status)?? && period.status == 0)?then('selected','')}>禁用</option>
+                                    <option value="1" <#if period?? && period.status == 1>selected</#if>>启用</option>
+                                    <option value="0" <#if period?? && period.status == 0>selected</#if>>禁用</option>
                                 </select>
                             </div>
                             <div class="d-flex gap-2">
