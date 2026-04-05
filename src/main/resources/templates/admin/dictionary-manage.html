@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据字典管理 - 名人名单管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <#include "/common/sidebar.html">
+            <!-- 主要内容 -->
+            <main class="col-md-9 col-lg-10 p-4" style="background: #f8f9fa;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>数据字典管理</h3>
+                    <a href="/admin/dictionary/add" class="btn btn-primary">添加字典项</a>
+                </div>
+                <!-- 搜索 -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form action="/admin/dictionary/list" method="get" class="row g-3">
+                            <div class="col-md-3">
+                                <select name="dictCode" class="form-select">
+                                    <option value="">全部字典</option>
+                                    <#if dictCodes??>
+                                        <#list dictCodes as code>
+                                            <option value="${code}" <#if currentDictCode?? && currentDictCode == code>selected</#if>>${code}</option>
+                                        </#list>
+                                    </#if>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="keyword" class="form-control" placeholder="搜索字典名称、编码..." value="${keyword!""}">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-outline-primary me-2">搜索</button>
+                                <a href="/admin/dictionary/list" class="btn btn-outline-secondary">重置</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- 列表 -->
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>字典编码</th>
+                                    <th>字典名称</th>
+                                    <th>字典项</th>
+                                    <th>字典项名称</th>
+                                    <th>标识</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <#if dictionaries?? && dictionaries?size gt 0>
+                                    <#list dictionaries as dict>
+                                        <tr>
+                                            <td>${dict.id}</td>
+                                            <td><code>${dict.dictCode!'无'}</code></td>
+                                            <td>${dict.dictName!'无'}</td>
+                                            <td><code>${dict.dictItem!'无'}</code></td>
+                                            <td>${dict.itemName!'无'}</td>
+                                            <td>
+                                                <#if dict.mark == 'HERO'>
+                                                    <span class="badge bg-primary">正面人物</span>
+                                                <#elseif dict.mark == 'VILLAIN'>
+                                                    <span class="badge bg-danger">反面人物</span>
+                                                <#else>
+                                                    <span class="badge bg-secondary">${dict.mark!'无'}</span>
+                                                </#if>
+                                            </td>
+                                            <td>
+                                                <#if dict.status == '1'>
+                                                    <span class="badge bg-success">启用</span>
+                                                <#else>
+                                                    <span class="badge bg-secondary">禁用</span>
+                                                </#if>
+                                            </td>
+                                            <td>
+                                                <a href="/admin/dictionary/edit/${dict.id}" class="btn btn-sm btn-outline-primary">编辑</a>
+                                                <button onclick="toggleStatus('${dict.id}')" class="btn btn-sm btn-outline-warning">
+                                                    ${dict.status == '1'?string('禁用', '启用')}
+                                                </button>
+                                                <button onclick="deleteDict('${dict.id}')" class="btn btn-sm btn-outline-danger">删除</button>
+                                            </td>
+                                        </tr>
+                                    </#list>
+                                <#else>
+                                    <tr>
+                                        <td colspan="8" class="text-center">暂无数据</td>
+                                    </tr>
+                                </#if>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function deleteDict(id) {
+            if (confirm('确定要删除此字典项吗？')) {
+                fetch('/admin/dictionary/delete/' + id, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === 200) {
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+            }
+        }
+
+        function toggleStatus(id) {
+            if (confirm('确定要切换此字典项的状态吗？')) {
+                fetch('/admin/dictionary/toggle/' + id, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === 200) {
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+            }
+        }
+    </script>
+</body>
+</html>
