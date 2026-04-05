@@ -63,7 +63,7 @@
                     <a href="/villain" class="btn btn-outline-danger <#if !currentCategory?? || currentCategory == ''>active</#if>">全部</a>
                     <#if categories??>
                         <#list categories as cat>
-                            <a href="/villain?category=${cat.dictItem}" class="btn btn-outline-danger ${(currentCategory == cat.dictItem)?string('active', '')}">${cat.itemName}</a>
+                            <a href="/villain?category=${cat.dictItem}" class="btn btn-outline-danger <#if currentCategory?? && currentCategory == cat.dictItem>active</#if>">${cat.itemName}</a>
                         </#list>
                     </#if>
                 </div>
