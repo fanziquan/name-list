@@ -85,7 +85,7 @@ public class TimelineController {
     public String events(
             @RequestParam(required = false) String period,
             @RequestParam(required = false) String significance,
-            @RequestParam(required = defaultValue = "1") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) String keyword,
             Model model) {
 
@@ -170,10 +170,10 @@ public class TimelineController {
         }
 
         result.put("code", 200);
-        result.put("data", Map.of(
-            "periods", periods,
-            "events", events
-        ));
+        Map<String, Object> data = new HashMap<>();
+        data.put("periods", periods);
+        data.put("events", events);
+        result.put("data", data);
 
         return result;
     }
@@ -186,7 +186,7 @@ public class TimelineController {
     public Map<String, Object> getEvents(
             @RequestParam(required = false) String period,
             @RequestParam(required = false) String significance,
-            @RequestParam(required = defaultValue = "1") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Map<String, Object> result = new HashMap<>();
@@ -208,11 +208,11 @@ public class TimelineController {
         }
 
         result.put("code", 200);
-        result.put("data", Map.of(
-            "events", events,
-            "page", page,
-            "size", size
-        ));
+        Map<String, Object> data = new HashMap<>();
+        data.put("events", events);
+        data.put("page", page);
+        data.put("size", size);
+        result.put("data", data);
 
         return result;
     }
