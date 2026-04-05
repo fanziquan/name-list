@@ -335,12 +335,8 @@ public class EventController {
      */
     @GetMapping("/relation/edit/{id}")
     public String editRelation(@PathVariable Integer id, Model model) {
-        // 获取所有关联（这里简化处理）
-        List<PersonEvent> allRelations = eventService.getAllPersonEvents(1, 1000);
-        PersonEvent relation = allRelations.stream()
-                .filter(r -> r.getId().equals(id))
-                .findFirst().orElse(null);
-
+        PersonEvent relation = eventService.getPersonEventById(id);
+        
         if (relation == null) {
             return "redirect:/admin/event/relation/list";
         }

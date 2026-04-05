@@ -80,7 +80,7 @@
                                         <option value="">请选择事件</option>
                                         <#if events??>
                                             <#list events as ev>
-                                                <option value="${ev.id}" <#if relation?? && relation.eventId == ev.id>selected</#if>>${ev.name} (${(ev.eventDate)?string("yyyy-MM-dd")})</option>
+                                                <option value="${ev.id}" <#if relation?? && relation.eventId == ev.id>selected</#if>>${ev.name} (<#if ev.eventDate??>${ev.eventDate}<#else>无日期</#if>)</option>
                                             </#list>
                                         </#if>
                                     </select>
@@ -89,11 +89,11 @@
                                     <label class="form-label">人物类型</label>
                                     <div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input person-type" type="radio" name="personType" value="HERO" id="typeHero" checked>
+                                            <input class="form-check-input person-type" type="radio" name="personType" value="HERO" id="typeHero" <#if !relation?? || (relation?? && relation.personType == 'HERO')>checked</#if>>
                                             <label class="form-check-label" for="typeHero">正面人物</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input person-type" type="radio" name="personType" value="VILLAIN" id="typeVillain">
+                                            <input class="form-check-input person-type" type="radio" name="personType" value="VILLAIN" id="typeVillain" <#if relation?? && relation.personType == 'VILLAIN'>checked</#if>>
                                             <label class="form-check-label" for="typeVillain">反面人物</label>
                                         </div>
                                     </div>
@@ -102,10 +102,11 @@
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">选择人物 <span class="text-danger">*</span></label>
+                                    <label class="form-label">选择人物 <span class="form-text text-muted" id="personCountText">(0个可选)</span> <span class="text-danger">*</span></label>
                                     <select class="form-select" name="personId" id="personSelect" required>
-                                        <option value="">请先选择事件和人物类型</option>
+                                        <option value="">请选择人物类型以查看可用人物</option>
                                     </select>
+                                    <div class="form-text" id="personHint">选择人物类型后，这里会显示对应类型的人物列表</div>
                                 </div>
                             </div>
 
@@ -131,35 +132,132 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 英雄和反派数据
+        // 英雄和反派数据 - 添加调试信息
+        console.log('FreeMarker heroes变量是否存在:', '<#if heroes??>是<#else>否</#if>');
+        console.log('FreeMarker villains变量是否存在:', '<#if villains??>是<#else>否</#if>');
+        
         const heroes = [
-            <#if heroes??>
+            <#if heroes?? && heroes?size gt 0>
                 <#list heroes as h>
-                    {id: '${h.id}', name: '${h.name}', category: '${h.category}'}<#if h?has_next>,</#if>
+                    {id: '${h.id!""}', name: '${h.name!""}', category: '${h.category!""}'}<#if h?has_next>,</#if>
                 </#list>
             </#if>
         ];
         const villains = [
-            <#if villains??>
+            <#if villains?? && villains?size gt 0>
                 <#list villains as v>
-                    {id: '${v.id}', name: '${v.name}', category: '${v.category}'}<#if v?has_next>,</#if>
+                    {id: '${v.id!""}', name: '${v.name!""}', category: '${v.category!""}'}<#if v?has_next>,</#if>
                 </#list>
             </#if>
         ];
+        
+        // 调试输出
+        console.log('英雄数据:', heroes);
+        console.log('反派数据:', villains);
+        console.log('英雄数量:', heroes.length);
+        console.log('英雄示例:', heroes.length > 0 ? heroes[0] : '无数据');
+        console.log('反派数量:', villains.length);
+        console.log('反派示例:', villains.length > 0 ? villains[0] : '无数据');
+        
+        // 安全获取人物名称函数
+        function safeGetPersonName(person) {
+            return person && person.name ? person.name.replace(/['"<>]/g, '') : '';
+        }
 
         // 更新人物下拉框
         function updatePersonSelect() {
-            const personType = document.querySelector('input[name="personType"]:checked').value;
+            const personTypeRadios = document.querySelectorAll('input[name="personType"]');
+            let selectedPersonType = null;
+            
+            // 找到选中的radio
+            for (let radio of personTypeRadios) {
+                if (radio.checked) {
+                    selectedPersonType = radio.value;
+                    break;
+                }
+            }
+            
+            if (!selectedPersonType) {
+                console.log('未选择人物类型，默认使用第一个');
+                // 如果没有选中，默认选中第一个
+                if (personTypeRadios.length > 0) {
+                    selectedPersonType = personTypeRadios[0].value;
+                    personTypeRadios[0].checked = true;
+                } else {
+                    console.log('没有找到人物类型单选按钮');
+                    return;
+                }
+            }
+            
             const personSelect = document.getElementById('personSelect');
+            const personCountText = document.getElementById('personCountText');
+            const personHint = document.getElementById('personHint');
             const currentPersonId = '${(relation.personId)!""}';
+            
+            console.log('当前人物类型:', selectedPersonType);
+            console.log('当前人物ID:', currentPersonId);
+            console.log('英雄数组:', heroes);
+            console.log('反派数组:', villains);
+            console.log('英雄数量:', Array.isArray(heroes) ? heroes.length : '不是数组');
+            console.log('反派数量:', Array.isArray(villains) ? villains.length : '不是数组');
 
-            let persons = personType === 'HERO' ? heroes : villains;
+            let persons = null;
+            if (selectedPersonType === 'HERO') {
+                persons = Array.isArray(heroes) ? heroes : [];
+            } else {
+                persons = Array.isArray(villains) ? villains : [];
+            }
+            
+            console.log('当前人物列表:', persons);
+            console.log('当前人物列表长度:', persons.length);
 
+            // 更新统计文本
+            const typeName = selectedPersonType === 'HERO' ? '正面人物' : '反面人物';
+            personCountText.textContent = `(${persons.length}个${typeName})`;
+            
+            // 清空并重新填充下拉框
             personSelect.innerHTML = '<option value="">请选择人物</option>';
+            
+            if (!persons || persons.length === 0) {
+                console.log('人物列表为空或不存在');
+                personSelect.innerHTML += '<option value="">暂无可用人物</option>';
+                personHint.textContent = `没有找到可用的${typeName}，请先在人物管理中添加${typeName}`;
+                return;
+            }
+            
+            // 更新提示文本
+            personHint.textContent = `已加载${persons.length}个${typeName}，请选择`;
+            
+            let foundSelected = false;
             persons.forEach(p => {
-                const selected = p.id === currentPersonId ? 'selected' : '';
-                personSelect.innerHTML += `<option value="${p.id}" ${selected}>${p.name}</option>`;
+                if (!p || !p.id) {
+                    console.log('跳过无效人物数据:', p);
+                    return;
+                }
+                const selected = (p.id && currentPersonId && p.id.toString() === currentPersonId.toString()) ? 'selected' : '';
+                if (selected) {
+                    foundSelected = true;
+                }
+                const safeName = p.name ? safeGetPersonName(p) : '未知人物';
+                console.log(`检查人物: ${p.id} = ${safeName}, 是否选中: ${selected}`);
+                personSelect.innerHTML += `<option value="${p.id}" ${selected}>${safeName}</option>`;
             });
+            
+            // 如果当前人物ID存在但在下拉框中没有选中，尝试手动设置
+            if (currentPersonId && !foundSelected) {
+                console.log('尝试手动设置选中项:', currentPersonId);
+                for (let i = 0; i < personSelect.options.length; i++) {
+                    if (personSelect.options[i].value === currentPersonId) {
+                        personSelect.selectedIndex = i;
+                        console.log('已手动选中');
+                        break;
+                    }
+                }
+            }
+            
+            // 启用下拉框
+            personSelect.disabled = false;
+            console.log('人物下拉框已启用，选项数量:', personSelect.options.length);
         }
 
         // 监听人物类型变化
@@ -167,15 +265,49 @@
             radio.addEventListener('change', updatePersonSelect);
         });
 
-        // 初始化
-        updatePersonSelect();
-
-        // 如果是编辑模式，设置初始类型
-        const currentPersonType = '${(relation.personType)!""}';
-        if (currentPersonType) {
-            document.querySelector(`input[name="personType"][value="${currentPersonType}"]`).checked = true;
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM已加载，开始初始化...');
+            
+            // 调试：检查事件下拉框是否有数据
+            const eventSelect = document.getElementById('eventSelect');
+            console.log('事件下拉框选项数量:', eventSelect ? eventSelect.options.length : '元素不存在');
+            console.log('事件下拉框当前值:', eventSelect ? eventSelect.value : 'N/A');
+            
+            const currentPersonType = '${(relation.personType)!""}';
+            console.log('当前人物类型(从后端获取):', currentPersonType);
+            
+            // 检查人物类型单选按钮
+            const personTypeRadios = document.querySelectorAll('.person-type');
+            console.log('人物类型单选按钮数量:', personTypeRadios.length);
+            
+            // 如果是编辑模式，先设置人物类型
+            if (currentPersonType) {
+                console.log('编辑模式，设置人物类型:', currentPersonType);
+                const typeRadio = document.querySelector(`input[name="personType"][value="${currentPersonType}"]`);
+                if (typeRadio) {
+                    typeRadio.checked = true;
+                    console.log('人物类型已设置');
+                }
+            } else {
+                // 添加模式，确保至少有一个被选中
+                console.log('添加模式，确保默认选中正面人物');
+                const heroRadio = document.getElementById('typeHero');
+                if (heroRadio) {
+                    heroRadio.checked = true;
+                    console.log('默认选中正面人物');
+                }
+            }
+            
+            // 更新人物下拉框
+            console.log('执行updatePersonSelect...');
             updatePersonSelect();
-        }
+            
+            // 添加调试：检查是否所有元素都存在
+            console.log('事件下拉框元素:', eventSelect);
+            console.log('人物下拉框元素:', document.getElementById('personSelect'));
+            console.log('人物类型单选按钮:', personTypeRadios.length);
+        });
 
         // 表单提交
         document.getElementById('relationForm').addEventListener('submit', function(e) {

@@ -93,11 +93,8 @@
     <div class="container-fluid">
         <div class="row">
             <!-- 侧边栏 -->
-            <nav class="col-md-2 sidebar p-3">
-                <h4 class="text-white mb-4 px-3">
-                    <i class="bi bi-grid-3x3-gap"></i>
-                    管理系统
-                </h4>
+            <nav class="col-md-3 col-lg-2 sidebar p-3">
+                <h4 class="text-white mb-4">管理系统</h4>
                 <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link" href="/admin/dashboard">
@@ -115,15 +112,35 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/admin/event/period/list">
+                            <i class="bi bi-calendar3"></i>时期管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/event/list">
+                            <i class="bi bi-calendar-event"></i>历史事件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/event/relation/list">
+                            <i class="bi bi-diagram-3"></i>事件-人物关联
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link active" href="/admin/user/list">
                             <i class="bi bi-people"></i>管理员管理
+                        </a>
+                    </li>
+                    <li class="nav-item mt-5">
+                        <a class="nav-link text-danger" href="javascript:void(0)" onclick="logout()">
+                            <i class="bi bi-box-arrow-right"></i>退出登录
                         </a>
                     </li>
                 </ul>
             </nav>
 
             <!-- 主要内容 -->
-            <main class="col-md-10 p-4">
+            <main class="col-md-9 col-lg-10 p-4" style="background: #f8f9fa;">
                 <!-- 页面标题 -->
                 <div class="page-header d-flex justify-content-between align-items-center">
                     <div>
@@ -186,7 +203,7 @@
                                         </td>
                                         <td>
                                             <#if user.createTime??>
-                                                ${user.createTime?string("yyyy-MM-dd")}
+                                                ${user.createTime}
                                             <#else>
                                                 -
                                             </#if>
@@ -250,6 +267,10 @@
                     alert(data.message);
                 }
             });
+        }
+        function logout() {
+            fetch('/api/auth/logout', { method: 'POST' })
+                .then(() => window.location.href = '/admin/login');
         }
     </script>
 </body>

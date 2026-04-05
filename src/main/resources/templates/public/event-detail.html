@@ -163,7 +163,7 @@
             <h1 class="event-title">${event.name}</h1>
             <div class="event-meta">
                 <div class="event-meta-item">
-                    <i class="bi bi-calendar3"></i> ${(event.eventDate)?string('yyyy年MM月dd日')}
+                    <i class="bi bi-calendar3"></i> <#if event.eventDate??>${event.eventDate}<#else>日期未设置</#if>
                 </div>
                 <#if event.location?? && event.location != ''>
                 <div class="event-meta-item">

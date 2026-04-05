@@ -67,8 +67,9 @@
 
     <!-- 获取启用的事件（分页） -->
     <select id="selectEnabledPaged" resultMap="EventWithPeriodMap">
-        SELECT e.*, p.name as period_name,
-               (SELECT COUNT(*) FROM person_event pe WHERE pe.event_id = e.id) as person_count
+        SELECT e.*, 
+               IFNULL(p.name, '未分类') as period_name,
+               IFNULL((SELECT COUNT(*) FROM person_event pe WHERE pe.event_id = e.id), 0) as person_count
         FROM event e
         LEFT JOIN period p ON e.period_code = p.code
         WHERE e.status = 1

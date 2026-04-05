@@ -1,8 +1,10 @@
 package org.example.namelist.service;
 
 import org.example.namelist.entity.Event;
+import org.example.namelist.entity.HeroPerson;
 import org.example.namelist.entity.Period;
 import org.example.namelist.entity.PersonEvent;
+import org.example.namelist.entity.VillainPerson;
 import org.example.namelist.mapper.EventMapper;
 import org.example.namelist.mapper.PeriodMapper;
 import org.example.namelist.mapper.PersonEventMapper;
@@ -37,6 +39,9 @@ public class EventService {
 
     @Autowired
     private OssService ossService;
+
+    @Autowired
+    private PersonService personService;
 
     // ==================== 时期操作 ====================
 
@@ -320,6 +325,41 @@ public class EventService {
      */
     public int getPersonEventCount() {
         return Math.toIntExact(personEventMapper.selectCount(null));
+    }
+
+    /**
+     * 根据ID获取关联详情
+     */
+    public PersonEvent getPersonEventById(Integer id) {
+        PersonEvent relation = personEventMapper.selectById(id);
+        if (relation != null) {
+            // 获取人物信息
+            if ("HERO".equals(relation.getPersonType())) {
+                HeroPerson hero = personService.getHeroById(relation.getPersonId());
+                if (hero != null) {
+                    relation.setPersonName(hero.getName());
+                    relation.setPersonCategory(hero.getCategory());
+                    relation.setPersonPhotoUrl(hero.getPhotoUrl());
+                }
+            } else if ("VILLAIN".equals(relation.getPersonType())) {
+                VillainPerson villain = personService.getVillainById(relation.getPersonId());
+                if (villain != null) {
+                    relation.setPersonName(villain.getName());
+                    relation.setPersonCategory(villain.getCategory());
+                    relation.setPersonPhotoUrl(villain.getPhotoUrl());
+                }
+            }
+            
+            // 获取事件信息
+            Event event = eventMapper.selectById(relation.getEventId());
+            if (event != null) {
+                relation.setEventName(event.getName());
+                if (event.getEventDate() != null) {
+                    relation.setEventDate(event.getEventDate().toString());
+                }
+            }
+        }
+        return relation;
     }
 
     // ==================== 时间线数据 ====================

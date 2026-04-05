@@ -120,7 +120,7 @@
                                         <tr>
                                             <td><code>${event.id}</code></td>
                                             <td><strong>${event.name}</strong></td>
-                                            <td>${(event.eventDate)?string('yyyy-MM-dd')}</td>
+                                            <td><#if event.eventDate??>${event.eventDate}<#else>日期未设置</#if></td>
                                             <td><span class="badge bg-secondary">${event.periodCode}</span></td>
                                             <td>
                                                 <#if event.significance == 'MAJOR'>
