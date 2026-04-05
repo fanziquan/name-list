@@ -20,7 +20,8 @@ src/main/java/org/example/namelist/
 │   ├── AuthController.java      # 认证控制器
 │   ├── DictionaryController.java # 数据字典控制器
 │   ├── EventController.java     # 历史事件控制器
-│   └── PublicController.java    # 公共页面控制器
+│   ├── PublicController.java    # 公共页面控制器
+│   └── TimelineController.java  # 时间线控制器
 ├── entity/                      # 实体类
 │   ├── HeroPerson.java          # 正面人物
 │   ├── VillainPerson.java       # 反面人物
@@ -30,7 +31,12 @@ src/main/java/org/example/namelist/
 │   └── IdSequence.java          # ID 序列生成
 ├── mapper/                      # MyBatis-Plus Mapper 接口
 └── service/                     # 业务逻辑层
-    └── DictionaryService.java   # 数据字典服务
+    ├── AuthService.java         # 认证服务
+    ├── DictionaryService.java   # 数据字典服务
+    ├── EventService.java        # 事件服务
+    ├── IdGeneratorService.java  # ID生成服务
+    ├── OssService.java          # OSS服务
+    └── PersonService.java       # 人物服务
 ```
 
 ### 文档索引
@@ -40,6 +46,7 @@ src/main/java/org/example/namelist/
 - **技术债务**: `docs/exec-plans/tech-debt-tracker.md`
 - **产品规范**: `docs/product-specs/index.md`
 - **执行计划**: `docs/exec-plans/index.md`
+- **设计文档**: `docs/plans/`
 
 ## 开发指引
 
