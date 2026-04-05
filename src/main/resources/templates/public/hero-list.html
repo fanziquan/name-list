@@ -60,7 +60,7 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="btn-group" role="group">
-                    <a href="/hero" class="btn btn-outline-primary ${(currentCategory??)?string('', 'active')}">全部</a>
+                    <a href="/hero" class="btn btn-outline-primary <#if !currentCategory?? || currentCategory == ''>active</#if>">全部</a>
                     <#if categories??>
                         <#list categories as cat>
                             <a href="/hero?category=${cat.dictItem}" class="btn btn-outline-primary ${(currentCategory == cat.dictItem)?string('active', '')}">${cat.itemName}</a>
