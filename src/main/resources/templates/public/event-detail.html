@@ -225,7 +225,7 @@
                                             <#if pe.roleDesc?? && pe.roleDesc != ''>
                                                 ${pe.roleDesc}
                                             <#else>
-                                                ${(pe.personType == 'HERO')?then('英雄','反派')}
+                                                <#if pe.personType == 'HERO'>英雄<#else>反派</#if>
                                             </#if>
                                         </div>
                                         <#if pe.contribution?? && pe.contribution != ''>
@@ -234,8 +234,8 @@
                                         </div>
                                         </#if>
                                         <div class="mt-2">
-                                            <span class="badge ${(pe.personType == 'HERO')?then('badge-hero','badge-villain')}">
-                                                ${(pe.personType == 'HERO')?then('英雄','反派')}
+                                            <span class="badge <#if pe.personType == 'HERO'>badge-hero<#else>badge-villain</#if>">
+                                                <#if pe.personType == 'HERO'>英雄<#else>反派</#if>
                                             </span>
                                         </div>
                                     </div>

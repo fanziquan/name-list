@@ -80,7 +80,7 @@
                                     <option value="">全部事件</option>
                                     <#if events??>
                                         <#list events as ev>
-                                            <option value="${ev.id}" ${(currentEventId == ev.id)?then('selected','')}>${ev.name}</option>
+                                            <option value="${ev.id}" <#if currentEventId?? && currentEventId == ev.id>selected</#if>>${ev.name}</option>
                                         </#list>
                                     </#if>
                                 </select>
@@ -139,11 +139,11 @@
                             </tbody>
                         </table>
                         <!-- 分页 -->
-                        <#if totalPages gt 1>
+                                <#if totalPages gt 1>
                             <nav>
                                 <ul class="pagination justify-content-center">
                                     <#list 1..totalPages as p>
-                                        <li class="page-item ${(p == currentPage)?then('active','')}">
+                                        <li class="page-item <#if p == currentPage>active</#if>">
                                             <a class="page-link" href="/admin/event/relation/list?page=${p}<#if currentEventId??>&eventId=${currentEventId}</#if>">${p}</a>
                                         </li>
                                     </#list>

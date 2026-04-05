@@ -53,7 +53,7 @@
         <!-- 正面人物搜索结果 -->
         <div class="row mb-5">
             <div class="col-12">
-                <h5 class="border-bottom pb-2 mb-3">正面人物 <span class="badge bg-primary">${(heroResults?? && heroResults?size > 0)?then(heroResults?size, 0)}</span></h5>
+                <h5 class="border-bottom pb-2 mb-3">正面人物 <span class="badge bg-primary"><#if heroResults?? && heroResults?size gt 0>${heroResults?size}<#else>0</#if></span></h5>
             </div>
             <#if heroResults?? && heroResults?size gt 0>
                 <#list heroResults as hero>
@@ -84,7 +84,7 @@
         <!-- 反面人物搜索结果 -->
         <div class="row mb-5">
             <div class="col-12">
-                <h5 class="border-bottom pb-2 mb-3">反面人物 <span class="badge bg-danger">${(villainResults?? && villainResults?size > 0)?then(villainResults?size, 0)}</span></h5>
+                <h5 class="border-bottom pb-2 mb-3">反面人物 <span class="badge bg-danger"><#if villainResults?? && villainResults?size gt 0>${villainResults?size}<#else>0</#if></span></h5>
             </div>
             <#if villainResults?? && villainResults?size gt 0>
                 <#list villainResults as villain>

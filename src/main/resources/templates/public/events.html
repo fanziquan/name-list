@@ -155,14 +155,14 @@
                 <div class="col-md-8">
                     <div class="d-flex flex-wrap">
                         <span class="me-2 my-auto">时期：</span>
-                        <a href="/events" class="filter-btn ${(!currentPeriod?? && !currentSignificance??)?then('active','')}">全部</a>
+                        <a href="/events" class="filter-btn <#if !currentPeriod?? && !currentSignificance??>active</#if>">全部</a>
                         <#if periods??>
                             <#list periods as p>
-                                <a href="/events?period=${p.code}" class="filter-btn ${(currentPeriod == p.code)?then('active','')}">${p.name}</a>
+                                <a href="/events?period=${p.code}" class="filter-btn <#if currentPeriod?? && currentPeriod == p.code>active</#if>">${p.name}</a>
                             </#list>
                         </#if>
                         <span class="me-2 my-auto ms-3">重要程度：</span>
-                        <a href="/events?significance=MAJOR" class="filter-btn ${(currentSignificance == 'MAJOR')?then('active','')}">重大事件</a>
+                        <a href="/events?significance=MAJOR" class="filter-btn <#if currentSignificance?? && currentSignificance == 'MAJOR'>active</#if>">重大事件</a>
                     </div>
                 </div>
             </form>
@@ -217,7 +217,7 @@
                         </li>
                     </#if>
                     <#list 1..totalPages as p>
-                        <li class="page-item ${(p == currentPage)?then('active','')}">
+                        <li class="page-item <#if p == currentPage>active</#if>">
                             <a class="page-link" href="/events?page=${p}<#if currentPeriod??>&period=${currentPeriod}</#if><#if currentSignificance??>&significance=${currentSignificance}</#if><#if keyword??>&keyword=${keyword}</#if>">${p}</a>
                         </li>
                     </#list>

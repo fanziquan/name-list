@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${(event??)?then('编辑','添加')}历史事件 - 名人名单管理系统</title>
+    <title><#if event??>编辑<#else>添加</#if>历史事件 - 名人名单管理系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .sidebar {
@@ -63,13 +63,13 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/admin/dashboard">首页</a></li>
                         <li class="breadcrumb-item"><a href="/admin/event/list">历史事件管理</a></li>
-                        <li class="breadcrumb-item active">${(event??)?then('编辑','添加')}事件</li>
+                        <li class="breadcrumb-item active"><#if event??>编辑<#else>添加</#if>事件</li>
                     </ol>
                 </nav>
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">${(event??)?then('编辑','添加')}历史事件</h5>
+                        <h5 class="mb-0"><#if event??>编辑<#else>添加</#if>历史事件</h5>
                     </div>
                     <div class="card-body">
                         <form id="eventForm">
@@ -93,7 +93,7 @@
                                         <option value="">请选择</option>
                                         <#if periods??>
                                             <#list periods as p>
-                                                <option value="${p.code}" ${((event.periodCode)?? && event.periodCode == p.code)?then('selected','')}>${p.name}</option>
+                                                <option value="${p.code}" <#if event?? && event.periodCode == p.code>selected</#if>>${p.name}</option>
                                             </#list>
                                         </#if>
                                     </select>
@@ -108,11 +108,11 @@
                                     <label class="form-label">重要程度</label>
                                     <div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="significance" value="MAJOR" id="major" ${((event.significance)?? && event.significance == 'MAJOR')?then('checked','')} checked>
+                                            <input class="form-check-input" type="radio" name="significance" value="MAJOR" id="major" <#if !event?? || event.significance == 'MAJOR'>checked</#if>>
                                             <label class="form-check-label" for="major">重大</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="significance" value="ORDINARY" id="ordinary" ${((event.significance)?? && event.significance == 'ORDINARY')?then('checked','')}>
+                                            <input class="form-check-input" type="radio" name="significance" value="ORDINARY" id="ordinary" <#if event?? && event.significance == 'ORDINARY'>checked</#if>>
                                             <label class="form-check-label" for="ordinary">普通</label>
                                         </div>
                                     </div>
@@ -150,8 +150,8 @@
                             <div class="mb-3">
                                 <label class="form-label">状态</label>
                                 <select class="form-select" name="status">
-                                    <option value="1" ${((event.status)?? && event.status == 1)?then('selected','')}>显示</option>
-                                    <option value="0" ${((event.status)?? && event.status == 0)?then('selected','')}>隐藏</option>
+                                    <option value="1" <#if !event?? || event.status == 1>selected</#if>>显示</option>
+                                    <option value="0" <#if event?? && event.status == 0>selected</#if>>隐藏</option>
                                 </select>
                             </div>
 

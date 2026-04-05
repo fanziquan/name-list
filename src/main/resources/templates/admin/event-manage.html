@@ -89,7 +89,7 @@
                                     <option value="">全部时期</option>
                                     <#if periods??>
                                         <#list periods as p>
-                                            <option value="${p.code}" ${(currentPeriod == p.code)?then('selected','')}>${p.name}</option>
+                                            <option value="${p.code}" <#if currentPeriod?? && currentPeriod == p.code>selected</#if>>${p.name}</option>
                                         </#list>
                                     </#if>
                                 </select>
@@ -147,7 +147,7 @@
                             <nav>
                                 <ul class="pagination justify-content-center">
                                     <#list 1..totalPages as p>
-                                        <li class="page-item ${(p == currentPage)?then('active','')}">
+                                        <li class="page-item <#if p == currentPage>active</#if>">
                                             <a class="page-link" href="/admin/event/list?page=${p}<#if currentPeriod??>&period=${currentPeriod}</#if>">${p}</a>
                                         </li>
                                     </#list>

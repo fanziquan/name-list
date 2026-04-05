@@ -228,10 +228,10 @@
         <!-- 时期筛选 -->
         <div class="period-filter">
             <div class="d-flex flex-wrap justify-content-center">
-                <a href="/timeline" class="period-btn ${(!currentPeriod??)?then('active','')}">全部</a>
+                <a href="/timeline" class="period-btn <#if !currentPeriod??>active</#if>">全部</a>
                 <#if periods??>
                     <#list periods as p>
-                        <a href="/timeline?period=${p.code}" class="period-btn ${(currentPeriod == p.code)?then('active','')}">${p.name}</a>
+                        <a href="/timeline?period=${p.code}" class="period-btn <#if currentPeriod?? && currentPeriod == p.code>active</#if>">${p.name}</a>
                     </#list>
                 </#if>
             </div>
