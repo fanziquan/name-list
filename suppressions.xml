@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+  <!-- 抑制实体类的魔法数字警告（很多字段有默认值） -->
+  <suppress checks="MagicNumber" files=".*[\\/]entity[\\/].*\.java"/>
+  
+  <!-- 抑制测试文件的某些检查 -->
+  <suppress checks="JavadocMethod" files=".*[\\/]test[\\/].*\.java"/>
+  <suppress checks="MethodLength" files=".*[\\/]test[\\/].*\.java"/>
+  
+  <!-- 抑制生成的代码 -->
+  <suppress checks=".*" files=".*[\\/]target[\\/].*"/>
+  <suppress checks=".*" files=".*[\\/]generated[\\/].*"/>
+  
+  <!-- 抑制启动类的某些检查 -->
+  <suppress checks="HideUtilityClassConstructor" files="NameListApplication\.java"/>
+  
+  <!-- 暂时抑制一些已知问题 -->
+  <suppress checks="CyclomaticComplexity" files="AdminController\.java"/>
+  <suppress checks="MethodLength" files="AdminController\.java"/>
+  
+  <!-- 抑制配置类的检查 -->
+  <suppress checks="JavadocType" files=".*[\\/]config[\\/].*\.java"/>
+</suppressions>

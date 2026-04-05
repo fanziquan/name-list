@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.namelist.mapper.PersonEventMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="org.example.namelist.entity.PersonEvent">
+        <id column="id" property="id"/>
+        <result column="person_id" property="personId"/>
+        <result column="person_type" property="personType"/>
+        <result column="event_id" property="eventId"/>
+        <result column="role_desc" property="roleDesc"/>
+        <result column="contribution" property="contribution"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 带人物信息的结果映射 -->
+    <resultMap id="PersonEventWithPersonMap" type="org.example.namelist.entity.PersonEvent">
+        <id column="id" property="id"/>
+        <result column="person_id" property="personId"/>
+        <result column="person_type" property="personType"/>
+        <result column="event_id" property="eventId"/>
+        <result column="role_desc" property="roleDesc"/>
+        <result column="contribution" property="contribution"/>
+        <result column="create_time" property="createTime"/>
+        <result column="person_name" property="personName"/>
+        <result column="person_photo_url" property="personPhotoUrl"/>
+        <result column="person_category" property="personCategory"/>
+    </resultMap>
+
+    <!-- 带事件信息的结果映射 -->
+    <resultMap id="PersonEventWithEventMap" type="org.example.namelist.entity.PersonEvent">
+        <id column="id" property="id"/>
+        <result column="person_id" property="personId"/>
+        <result column="person_type" property="personType"/>
+        <result column="event_id" property="eventId"/>
+        <result column="role_desc" property="roleDesc"/>
+        <result column="contribution" property="contribution"/>
+        <result column="create_time" property="createTime"/>
+        <result column="event_name" property="eventName"/>
+        <result column="event_date" property="eventDate"/>
+    </resultMap>
+
+    <!-- 通用查询列 -->
+    <sql id="Base_Column_List">
+        id, person_id, person_type, event_id, role_desc, contribution, create_time
+    </sql>
+
+    <!-- 根据事件ID查询关联人物（带人物信息） -->
+    <select id="selectByEventId" parameterType="java.lang.String" resultMap="PersonEventWithPersonMap">
+        SELECT pe.*,
+               CASE
+                   WHEN pe.person_type = 'HERO' THEN hp.name
+                   WHEN pe.person_type = 'VILLAIN' THEN vp.name
+               END as person_name,
+               CASE
+                   WHEN pe.person_type = 'HERO' THEN hp.photo_url
+                   WHEN pe.person_type = 'VILLAIN' THEN vp.photo_url
+               END as person_photo_url,
+               CASE
+                   WHEN pe.person_type = 'HERO' THEN hp.category
+                   WHEN pe.person_type = 'VILLAIN' THEN vp.category
+               END as person_category
+        FROM person_event pe
+        LEFT JOIN hero_person hp ON pe.person_id = hp.id AND pe.person_type = 'HERO'
+        LEFT JOIN villain_person vp ON pe.person_id = vp.id AND pe.person_type = 'VILLAIN'
+        WHERE pe.event_id = #{eventId}
+        ORDER BY pe.person_type, pe.create_time
+    </select>
+
+    <!-- 根据人物ID查询关联事件（带事件信息） -->
+    <select id="selectByPersonId" parameterType="java.lang.String" resultMap="PersonEventWithEventMap">
+        SELECT pe.*, e.name as event_name, e.event_date
+        FROM person_event pe
+        LEFT JOIN event e ON pe.event_id = e.id
+        WHERE pe.person_id = #{personId}
+        ORDER BY e.event_date
+    </select>
+
+    <!-- 根据人物ID和类型查询关联事件 -->
+    <select id="selectByPersonIdAndType" resultMap="PersonEventWithEventMap">
+        SELECT pe.*, e.name as event_name, e.event_date
+        FROM person_event pe
+        LEFT JOIN event e ON pe.event_id = e.id
+        WHERE pe.person_id = #{personId} AND pe.person_type = #{personType}
+        ORDER BY e.event_date
+    </select>
+
+    <!-- 根据事件ID统计人物数量 -->
+    <select id="countByEventId" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM person_event WHERE event_id = #{eventId}
+    </select>
+
+    <!-- 根据人物ID统计事件数量 -->
+    <select id="countByPersonId" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM person_event WHERE person_id = #{personId}
+    </select>
+
+    <!-- 检查关联是否已存在 -->
+    <select id="existsByPersonAndEvent" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM person_event
+        WHERE person_id = #{personId} AND event_id = #{eventId}
+    </select>
+
+</mapper>

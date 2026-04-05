@@ -1,9 +1,11 @@
 package org.example.namelist.controller;
 
+import org.example.namelist.entity.AdminUser;
 import org.example.namelist.entity.Dictionary;
 import org.example.namelist.entity.HeroPerson;
 import org.example.namelist.entity.PersonExtend;
 import org.example.namelist.entity.VillainPerson;
+import org.example.namelist.service.AuthService;
 import org.example.namelist.service.OssService;
 import org.example.namelist.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,9 @@ public class AdminController {
 
     @Autowired
     private OssService ossService;
+
+    @Autowired
+    private AuthService authService;
 
     /**
      * 后台首页（仪表盘）
@@ -397,6 +402,190 @@ public class AdminController {
         } catch (Exception e) {
             result.put("code", 500);
             result.put("message", "上传失败: " + e.getMessage());
+        }
+
+        return result;
+    }
+
+    // ==================== 管理员管理 ====================
+
+    /**
+     * 管理员列表页
+     */
+    @GetMapping("/user/list")
+    public String userList(Model model) {
+        List<AdminUser> users = authService.getAllAdmins();
+        model.addAttribute("users", users);
+        return "admin/admin-user-manage";
+    }
+
+    /**
+     * 添加管理员页面
+     */
+    @GetMapping("/user/add")
+    public String addUser(Model model) {
+        return "admin/admin-user-form";
+    }
+
+    /**
+     * 编辑管理员页面
+     */
+    @GetMapping("/user/edit/{id}")
+    public String editUser(@PathVariable Integer id, Model model) {
+        AdminUser user = authService.getAllAdmins().stream()
+                .filter(u -> u.getId().equals(id))
+                .findFirst().orElse(null);
+        if (user == null) {
+            return "redirect:/admin/user/list";
+        }
+        // 不传递密码到前端
+        user.setPassword(null);
+        model.addAttribute("user", user);
+        return "admin/admin-user-form";
+    }
+
+    /**
+     * 保存管理员（新增或更新）
+     */
+    @ResponseBody
+    @PostMapping("/user/save")
+    public Map<String, Object> saveUser(
+            @RequestParam(required = false) Integer id,
+            @RequestParam String username,
+            @RequestParam(required = false) String password,
+            @RequestParam String nickname,
+            @RequestParam String role,
+            @RequestParam(required = false, defaultValue = "1") Integer status) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            // 检查用户名唯一性（新增时）
+            if (id == null && authService.isUsernameExists(username)) {
+                result.put("code", 500);
+                result.put("message", "用户名已存在");
+                return result;
+            }
+
+            AdminUser user = new AdminUser();
+            if (id != null) {
+                // 更新时先查原数据
+                AdminUser existUser = authService.getAllAdmins().stream()
+                        .filter(u -> u.getId().equals(id))
+                        .findFirst().orElse(null);
+                if (existUser == null) {
+                    result.put("code", 500);
+                    result.put("message", "用户不存在");
+                    return result;
+                }
+                user.setId(id);
+                user.setUsername(existUser.getUsername());
+                // 如果没有新密码，保持原密码
+                if (password == null || password.isEmpty()) {
+                    user.setPassword(existUser.getPassword());
+                } else {
+                    user.setPassword(password);
+                }
+            } else {
+                // 新增必须有密码
+                if (password == null || password.isEmpty()) {
+                    result.put("code", 500);
+                    result.put("message", "密码不能为空");
+                    return result;
+                }
+                user.setUsername(username);
+                user.setPassword(password);
+            }
+
+            user.setNickname(nickname);
+            user.setRole(role);
+            user.setStatus(status);
+
+            if (id == null) {
+                authService.addAdmin(user);
+            } else {
+                authService.updateAdmin(user);
+            }
+
+            result.put("code", 200);
+            result.put("message", "保存成功");
+        } catch (Exception e) {
+            result.put("code", 500);
+            result.put("message", "保存失败: " + e.getMessage());
+        }
+
+        return result;
+    }
+
+    /**
+     * 删除管理员
+     */
+    @ResponseBody
+    @PostMapping("/user/delete/{id}")
+    public Map<String, Object> deleteUser(@PathVariable Integer id, HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            // 不允许删除自己
+            AdminUser currentUser = (AdminUser) session.getAttribute("adminUser");
+            if (currentUser != null && currentUser.getId().equals(id)) {
+                result.put("code", 500);
+                result.put("message", "不能删除自己");
+                return result;
+            }
+
+            boolean success = authService.deleteAdmin(id);
+            if (success) {
+                result.put("code", 200);
+                result.put("message", "删除成功");
+            } else {
+                result.put("code", 500);
+                result.put("message", "删除失败");
+            }
+        } catch (Exception e) {
+            result.put("code", 500);
+            result.put("message", "删除失败: " + e.getMessage());
+        }
+
+        return result;
+    }
+
+    /**
+     * 切换管理员状态
+     */
+    @ResponseBody
+    @PostMapping("/user/toggleStatus/{id}")
+    public Map<String, Object> toggleUserStatus(@PathVariable Integer id, HttpSession session) {
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            // 不允许禁用自己
+            AdminUser currentUser = (AdminUser) session.getAttribute("adminUser");
+            if (currentUser != null && currentUser.getId().equals(id)) {
+                result.put("code", 500);
+                result.put("message", "不能禁用自己");
+                return result;
+            }
+
+            AdminUser user = authService.getAllAdmins().stream()
+                    .filter(u -> u.getId().equals(id))
+                    .findFirst().orElse(null);
+
+            if (user == null) {
+                result.put("code", 500);
+                result.put("message", "用户不存在");
+                return result;
+            }
+
+            user.setStatus(user.getStatus() == 1 ? 0 : 1);
+            authService.updateAdmin(user);
+
+            result.put("code", 200);
+            result.put("message", "操作成功");
+            result.put("newStatus", user.getStatus());
+        } catch (Exception e) {
+            result.put("code", 500);
+            result.put("message", "操作失败: " + e.getMessage());
         }
 
         return result;

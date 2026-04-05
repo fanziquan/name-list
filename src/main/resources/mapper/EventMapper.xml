@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.namelist.mapper.EventMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="org.example.namelist.entity.Event">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="event_date" property="eventDate"/>
+        <result column="period_code" property="periodCode"/>
+        <result column="location" property="location"/>
+        <result column="brief_desc" property="briefDesc"/>
+        <result column="full_desc" property="fullDesc"/>
+        <result column="significance" property="significance"/>
+        <result column="photo_url" property="photoUrl"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 带时期名称的结果映射 -->
+    <resultMap id="EventWithPeriodMap" type="org.example.namelist.entity.Event">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="event_date" property="eventDate"/>
+        <result column="period_code" property="periodCode"/>
+        <result column="location" property="location"/>
+        <result column="brief_desc" property="briefDesc"/>
+        <result column="full_desc" property="fullDesc"/>
+        <result column="significance" property="significance"/>
+        <result column="photo_url" property="photoUrl"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="period_name" property="periodName"/>
+        <result column="person_count" property="personCount"/>
+    </resultMap>
+
+    <!-- 通用查询列 -->
+    <sql id="Base_Column_List">
+        id, name, event_date, period_code, location, brief_desc, full_desc, significance, photo_url, status, create_time, update_time
+    </sql>
+
+    <!-- 根据时期查询 -->
+    <select id="selectByPeriod" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM event
+        WHERE period_code = #{periodCode} AND status = 1
+        ORDER BY event_date ASC
+    </select>
+
+    <!-- 根据重要程度查询 -->
+    <select id="selectBySignificance" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM event
+        WHERE significance = #{significance} AND status = 1
+        ORDER BY event_date ASC
+    </select>
+
+    <!-- 搜索事件 -->
+    <select id="searchByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM event
+        WHERE name LIKE CONCAT('%', #{keyword}, '%') AND status = 1
+        ORDER BY event_date ASC
+    </select>
+
+    <!-- 获取启用的事件（分页） -->
+    <select id="selectEnabledPaged" resultMap="EventWithPeriodMap">
+        SELECT e.*, p.name as period_name,
+               (SELECT COUNT(*) FROM person_event pe WHERE pe.event_id = e.id) as person_count
+        FROM event e
+        LEFT JOIN period p ON e.period_code = p.code
+        WHERE e.status = 1
+        ORDER BY e.event_date ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 获取启用事件总数 -->
+    <select id="selectEnabledCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM event WHERE status = 1
+    </select>
+
+    <!-- 根据时期获取启用事件总数 -->
+    <select id="selectCountByPeriod" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM event WHERE period_code = #{periodCode} AND status = 1
+    </select>
+
+    <!-- 根据重要程度获取启用事件总数 -->
+    <select id="selectCountBySignificance" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM event WHERE significance = #{significance} AND status = 1
+    </select>
+
+</mapper>

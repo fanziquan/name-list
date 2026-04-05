@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史时间线 - 名人名单管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #7209b7;
+            --hero-color: #11998e;
+            --villain-color: #eb3349;
+        }
+        .timeline-container {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--hero-color), var(--villain-color));
+            transform: translateX(-50%);
+        }
+        @media (max-width: 768px) {
+            .timeline-line {
+                left: 20px;
+            }
+        }
+        .timeline-year {
+            text-align: center;
+            margin: 40px 0 20px;
+            position: relative;
+        }
+        .timeline-year-marker {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        .timeline-events {
+            position: relative;
+            margin: 20px 0;
+        }
+        .timeline-item {
+            display: flex;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .timeline-item-left,
+        .timeline-item-right {
+            width: 45%;
+            padding: 15px;
+        }
+        .timeline-item-left {
+            text-align: right;
+            padding-right: 40px;
+        }
+        .timeline-item-right {
+            text-align: left;
+            padding-left: 40px;
+        }
+        @media (max-width: 768px) {
+            .timeline-item-left,
+            .timeline-item-right {
+                width: 100%;
+                text-align: left;
+                padding-left: 50px;
+                padding-right: 0;
+            }
+            .timeline-item-left::before,
+            .timeline-item-right::before {
+                left: 30px !important;
+                right: auto !important;
+            }
+        }
+        .timeline-item-left::before {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 20px;
+            width: 16px;
+            height: 16px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .timeline-item-right::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 16px;
+            height: 16px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .event-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        .event-card.major {
+            border-left: 4px solid var(--hero-color);
+        }
+        .event-date {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .event-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .event-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .event-period {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+        .period-filter {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .period-btn {
+            border-radius: 20px;
+            padding: 8px 20px;
+            margin: 5px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            transition: all 0.3s;
+        }
+        .period-btn:hover,
+        .period-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .hero-badge {
+            background: var(--hero-color);
+        }
+        .villain-badge {
+            background: var(--villain-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-people-fill"></i> 名人名单管理系统
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/hero">正面人物</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/villain">反面人物</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/timeline">
+                            <i class="bi bi-clock-history"></i> 历史时间线
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/events">历史事件库</a>
+                    </li>
+                </ul>
+                <form class="d-flex" action="/search" method="get">
+                    <input class="form-control me-2" type="search" name="keyword" placeholder="搜索..." required>
+                    <button class="btn btn-outline-light" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container mt-4">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">
+                <i class="bi bi-clock-history text-primary"></i> 历史时间线
+            </h2>
+            <p class="text-muted">探索中国历史长河中的重要事件</p>
+        </div>
+
+        <!-- 时期筛选 -->
+        <div class="period-filter">
+            <div class="d-flex flex-wrap justify-content-center">
+                <a href="/timeline" class="period-btn ${(!currentPeriod??)?then('active','')}">全部</a>
+                <#if periods??>
+                    <#list periods as p>
+                        <a href="/timeline?period=${p.code}" class="period-btn ${(currentPeriod == p.code)?then('active','')}">${p.name}</a>
+                    </#list>
+                </#if>
+            </div>
+        </div>
+
+        <!-- 时间线 -->
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+
+            <#if events?? && events?size gt 0>
+                <#assign currentYear = 0>
+                <#list events as event>
+                    <#assign eventYear = (event.eventDate?string('yyyy'))?number>
+                    <#if eventYear != currentYear>
+                        <#assign currentYear = eventYear>
+                        <div class="timeline-year">
+                            <span class="timeline-year-marker">${eventYear}年</span>
+                        </div>
+                    </#if>
+
+                    <#if event_index % 2 == 0>
+                        <div class="timeline-item">
+                            <div class="timeline-item-left">
+                                <div class="event-card major" onclick="location.href='/event/${event.id}'">
+                                    <div class="event-date">
+                                        <i class="bi bi-calendar3"></i> ${(event.eventDate)?string('yyyy年MM月dd日')}
+                                    </div>
+                                    <div class="event-title">${event.name}</div>
+                                    <div class="event-desc">${event.briefDesc!''}</div>
+                                    <span class="event-period">${event.periodCode!'未知时期'}</span>
+                                    <#if event.significance == 'MAJOR'>
+                                        <span class="badge hero-badge ms-2">重大</span>
+                                    </#if>
+                                </div>
+                            </div>
+                            <div class="timeline-item-right"></div>
+                        </div>
+                    <#else>
+                        <div class="timeline-item">
+                            <div class="timeline-item-left"></div>
+                            <div class="timeline-item-right">
+                                <div class="event-card major" onclick="location.href='/event/${event.id}'">
+                                    <div class="event-date">
+                                        <i class="bi bi-calendar3"></i> ${(event.eventDate)?string('yyyy年MM月dd日')}
+                                    </div>
+                                    <div class="event-title">${event.name}</div>
+                                    <div class="event-desc">${event.briefDesc!''}</div>
+                                    <span class="event-period">${event.periodCode!'未知时期'}</span>
+                                    <#if event.significance == 'MAJOR'>
+                                        <span class="badge hero-badge ms-2">重大</span>
+                                    </#if>
+                                </div>
+                            </div>
+                        </div>
+                    </#if>
+                </#list>
+            <#else>
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="text-muted mt-3">暂无历史事件</p>
+                </div>
+            </#if>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <p class="mb-0">&copy; 2024 名人名单管理系统</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

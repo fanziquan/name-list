@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${(event.name)!'事件详情'} - 名人名单管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --hero-color: #11998e;
+            --villain-color: #eb3349;
+            --primary-color: #4361ee;
+        }
+        .event-header {
+            background: linear-gradient(135deg, var(--primary-color), #7209b7);
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 40px;
+        }
+        .event-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .event-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 16px;
+        }
+        .event-meta-item {
+            display: flex;
+            align-items: center;
+        }
+        .event-meta-item i {
+            margin-right: 8px;
+            opacity: 0.8;
+        }
+        .content-section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+        .section-title i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        .person-card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            height: 100%;
+        }
+        .person-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .person-card-body {
+            padding: 20px;
+        }
+        .person-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin: 0 auto 15px;
+        }
+        .person-name {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .person-role {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .person-contribution {
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+        }
+        .badge-hero {
+            background: var(--hero-color);
+        }
+        .badge-villain {
+            background: var(--villain-color);
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-link:hover {
+            color: rgba(255,255,255,0.8);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-people-fill"></i> 名人名单管理系统
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/hero">正面人物</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/villain">反面人物</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/timeline">历史时间线</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/events">历史事件库</a>
+                    </li>
+                </ul>
+                <form class="d-flex" action="/search" method="get">
+                    <input class="form-control me-2" type="search" name="keyword" placeholder="搜索..." required>
+                    <button class="btn btn-outline-light" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <#if event??>
+    <!-- 事件头部 -->
+    <div class="event-header">
+        <div class="container">
+            <a href="/events" class="back-link">
+                <i class="bi bi-arrow-left"></i> 返回事件库
+            </a>
+            <h1 class="event-title">${event.name}</h1>
+            <div class="event-meta">
+                <div class="event-meta-item">
+                    <i class="bi bi-calendar3"></i> ${(event.eventDate)?string('yyyy年MM月dd日')}
+                </div>
+                <#if event.location?? && event.location != ''>
+                <div class="event-meta-item">
+                    <i class="bi bi-geo-alt"></i> ${event.location}
+                </div>
+                </#if>
+                <div class="event-meta-item">
+                    <i class="bi bi-clock-history"></i> ${event.periodName!event.periodCode!'未知时期'}
+                </div>
+                <#if event.significance == 'MAJOR'>
+                <div class="event-meta-item">
+                    <span class="badge bg-warning text-dark">重大事件</span>
+                </div>
+                </#if>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <!-- 事件简介 -->
+        <div class="content-section">
+            <h3 class="section-title">
+                <i class="bi bi-info-circle"></i> 事件简介
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <p class="lead">${event.briefDesc!''}</p>
+                    <#if event.fullDesc?? && event.fullDesc != ''>
+                    <hr>
+                    <p>${event.fullDesc}</p>
+                    </#if>
+                </div>
+            </div>
+        </div>
+
+        <!-- 参与人物 -->
+        <div class="content-section">
+            <h3 class="section-title">
+                <i class="bi bi-people"></i> 参与人物
+                <span class="badge bg-primary ms-2">${(persons?size)!0}人</span>
+            </h3>
+            <#if persons?? && persons?size gt 0>
+                <div class="row">
+                    <#list persons as pe>
+                        <div class="col-md-4 col-lg-3 mb-4">
+                            <#if pe.personType == 'HERO'>
+                            <a href="/hero/${pe.personId}" class="text-decoration-none">
+                            <#else>
+                            <a href="/villain/${pe.personId}" class="text-decoration-none">
+                            </#if>
+                                <div class="card person-card">
+                                    <div class="card-body person-card-body">
+                                        <div class="person-avatar">
+                                            ${(pe.personName[0])!'?'}
+                                        </div>
+                                        <div class="person-name">${pe.personName!'未知人物'}</div>
+                                        <div class="person-role">
+                                            <#if pe.roleDesc?? && pe.roleDesc != ''>
+                                                ${pe.roleDesc}
+                                            <#else>
+                                                ${(pe.personType == 'HERO')?then('英雄','反派')}
+                                            </#if>
+                                        </div>
+                                        <#if pe.contribution?? && pe.contribution != ''>
+                                        <div class="person-contribution">
+                                            ${pe.contribution}
+                                        </div>
+                                        </#if>
+                                        <div class="mt-2">
+                                            <span class="badge ${(pe.personType == 'HERO')?then('badge-hero','badge-villain')}">
+                                                ${(pe.personType == 'HERO')?then('英雄','反派')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </#list>
+                </div>
+            <#else>
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-people fs-1"></i>
+                    <p>暂无关联人物</p>
+                </div>
+            </#if>
+        </div>
+    </div>
+    <#else>
+    <div class="container mt-5 text-center">
+        <i class="bi bi-exclamation-circle fs-1 text-muted"></i>
+        <h3 class="text-muted mt-3">事件不存在</h3>
+        <a href="/events" class="btn btn-primary mt-3">返回事件库</a>
+    </div>
+    </#if>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <p class="mb-0">&copy; 2024 名人名单管理系统</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

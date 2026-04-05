@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.namelist.mapper.PeriodMapper">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="org.example.namelist.entity.Period">
+        <id column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="start_year" property="startYear"/>
+        <result column="end_year" property="endYear"/>
+        <result column="order_num" property="orderNum"/>
+        <result column="description" property="description"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询列 -->
+    <sql id="Base_Column_List">
+        code, name, start_year, end_year, order_num, description, status, create_time, update_time
+    </sql>
+
+    <!-- 获取所有启用的时期（按排序号） -->
+    <select id="selectAllEnabled" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM period
+        WHERE status = 1
+        ORDER BY order_num ASC
+    </select>
+
+    <!-- 根据编码查询 -->
+    <select id="selectByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM period
+        WHERE code = #{code}
+    </select>
+
+</mapper>

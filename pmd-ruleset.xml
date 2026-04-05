@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<ruleset name="Name-List Custom Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+    
+    <description>Name-List 项目自定义 PMD 规则集</description>
+    
+    <!-- 引用基础规则 -->
+    <rule ref="category/java/bestpractices.xml">
+        <!-- 排除一些过于严格的规则 -->
+        <exclude name="AvoidPrintStackTrace"/>
+        <exclude name="UseVarargs"/>
+    </rule>
+    
+    <rule ref="category/java/codestyle.xml">
+        <!-- 代码风格规则 -->
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="CallSuperInConstructor"/>
+        <exclude name="LongVariable"/>
+        <exclude name="ShortMethodName"/>
+    </rule>
+    
+    <rule ref="category/java/design.xml">
+        <!-- 设计规则 -->
+        <exclude name="LawOfDemeter"/>
+        <exclude name="DataClass"/>
+        <exclude name="ExcessiveImports"/>
+    </rule>
+    
+    <!-- 重复代码检查 -->
+    <rule ref="category/java/codestyle.xml/DuplicateImports"/>
+    <rule ref="category/java/errorprone.xml/CloneMethodMustImplementCloneable"/>
+    <rule ref="category/java/errorprone.xml/CloseResource"/>
+    
+    <!-- 自定义重复代码检测 -->
+    <rule ref="category/java/codestyle.xml/TooManyStaticImports">
+        <properties>
+            <property name="maximumStaticImports" value="10"/>
+        </properties>
+    </rule>
+    
+    <!-- 循环复杂度检查 -->
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <properties>
+            <property name="classReportLevel" value="50"/>
+            <property name="methodReportLevel" value="15"/>
+        </properties>
+    </rule>
+    
+    <!-- 过长方法检查 -->
+    <rule ref="category/java/design.xml/ExcessiveMethodLength">
+        <properties>
+            <property name="minimum" value="100.0"/>
+        </properties>
+    </rule>
+    
+    <!-- 过长类检查 -->
+    <rule ref="category/java/design.xml/ExcessiveClassLength">
+        <properties>
+            <property name="minimum" value="500.0"/>
+        </properties>
+    </rule>
+    
+    <!-- 过长参数列表检查 -->
+    <rule ref="category/java/design.xml/ExcessiveParameterList">
+        <properties>
+            <property name="minimum" value="8"/>
+        </properties>
+    </rule>
+    
+    <!-- 过深嵌套检查 -->
+    <rule ref="category/java/design.xml/ExcessiveNestedIfDepth">
+        <properties>
+            <property name="minimum" value="4"/>
+        </properties>
+    </rule>
+    
+    <!-- 过深嵌套检查 -->
+    <rule ref="category/java/design.xml/ExcessiveNestedTryDepth">
+        <properties>
+            <property name="minimum" value="3"/>
+        </properties>
+    </rule>
+    
+    <!-- 复制粘贴代码检测 -->
+    <rule ref="category/java/codestyle.xml/AvoidDuplicateLiterals">
+        <properties>
+            <property name="maxDuplicateLiterals" value="5"/>
+            <property name="minimumLength" value="3"/>
+            <property name="skipAnnotations" value="true"/>
+        </properties>
+    </rule>
+    
+    <!-- 空代码块检查 -->
+    <rule ref="category/java/codestyle.xml/EmptyControlStatement"/>
+    
+    <!-- 不必要的代码检查 -->
+    <rule ref="category/java/codestyle.xml/UnnecessaryModifier"/>
+    <rule ref="category/java/codestyle.xml/UnnecessaryReturn"/>
+    
+    <!-- 注释检查 -->
+    <rule ref="category/java/documentation.xml/CommentRequired">
+        <properties>
+            <property name="classCommentRequirement" value="Required"/>
+            <property name="fieldCommentRequirement" value="Ignored"/>
+            <property name="publicMethodCommentRequirement" value="Required"/>
+            <property name="protectedMethodCommentRequirement" value="Required"/>
+            <property name="enumCommentRequirement" value="Required"/>
+            <property name="serialVersionUIDCommentRequirement" value="Ignored"/>
+        </properties>
+    </rule>
+    
+    <!-- 命名约定 -->
+    <rule ref="category/java/codestyle.xml/ShortClassName">
+        <properties>
+            <property name="minimum" value="3"/>
+        </properties>
+    </rule>
+    
+    <rule ref="category/java/codestyle.xml/ShortMethodName">
+        <properties>
+            <property name="minimum" value="3"/>
+        </properties>
+    </rule>
+    
+    <!-- 性能相关 -->
+    <rule ref="category/java/performance.xml/AvoidInstantiatingObjectsInLoops"/>
+    <rule ref="category/java/performance.xml/UseStringBufferForStringAppends"/>
+    
+    <!-- 安全相关 -->
+    <rule ref="category/java/security.xml/HardCodedCryptoKey"/>
+    
+    <!-- 异常处理 -->
+    <rule ref="category/java/errorprone.xml/AvoidCatchingGenericException"/>
+    <rule ref="category/java/errorprone.xml/AvoidCatchingNPE"/>
+    <rule ref="category/java/errorprone.xml/AvoidCatchingThrowable"/>
+    <rule ref="category/java/errorprone.xml/AvoidThrowingNullPointerException"/>
+    
+    <!-- 排除测试代码 -->
+    <exclude-pattern>.*/test/.*</exclude-pattern>
+    <exclude-pattern>.*/Test.*\.java</exclude-pattern>
+    <exclude-pattern>.*Test\.java</exclude-pattern>
+    
+    <!-- 排除生成的代码 -->
+    <exclude-pattern>.*/target/.*</exclude-pattern>
+    <exclude-pattern>.*/generated/.*</exclude-pattern>
+    
+</ruleset>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><#if user??>编辑<#else>添加</#if>管理员 - 名人名单管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+        }
+        body {
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: #2c3e50;
+            min-height: 100vh;
+        }
+        .sidebar .nav-link {
+            color: #adb5bd;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 4px 12px;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        .page-header {
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .form-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 30px;
+        }
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 10px 14px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .btn-save {
+            background: var(--primary-gradient);
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            color: #fff;
+        }
+        .btn-cancel {
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .required-mark {
+            color: #dc3545;
+            margin-left: 4px;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <nav class="col-md-2 sidebar p-3">
+                <h4 class="text-white mb-4 px-3">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    管理系统
+                </h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-speedometer2"></i>仪表盘
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/hero/list">
+                            <i class="bi bi-person-badge"></i>正面人物管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/villain/list">
+                            <i class="bi bi-person-x"></i>反面人物管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/user/list">
+                            <i class="bi bi-people"></i>管理员管理
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- 主要内容 -->
+            <main class="col-md-10 p-4">
+                <!-- 页面标题 -->
+                <div class="page-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-1">
+                            <i class="bi bi-people-fill text-primary"></i>
+                            <#if user??>编辑管理员<#else>添加管理员</#if>
+                        </h4>
+                        <p class="text-muted mb-0 small"><#if user??>修改管理员信息<#else>创建新的管理员账号</#if></p>
+                    </div>
+                    <a href="/admin/user/list" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> 返回列表
+                    </a>
+                </div>
+
+                <!-- 表单 -->
+                <div class="form-card">
+                    <form id="userForm">
+                        <#if user??>
+                            <input type="hidden" name="id" value="${user.id}">
+                        </#if>
+
+                        <!-- 基本信息 -->
+                        <div class="form-section-title">
+                            <i class="bi bi-info-circle"></i> 基本信息
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    用户名 <span class="required-mark">*</span>
+                                </label>
+                                <#if user??>
+                                    <input type="text" class="form-control" value="${user.username}" disabled>
+                                    <input type="hidden" name="username" value="${user.username}">
+                                    <p class="help-text">用户名不可修改</p>
+                                <#else>
+                                    <input type="text" class="form-control" name="username" placeholder="请输入用户名" required>
+                                    <p class="help-text">登录时使用的账号名</p>
+                                </#if>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    昵称
+                                </label>
+                                <input type="text" class="form-control" name="nickname" value="${(user.nickname)!''}" placeholder="请输入昵称">
+                                <p class="help-text">显示名称，可与用户名不同</p>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <#if user??>新密码<#else>密码<#if	user??><#else><span class="required-mark">*</span></#if></#if>
+                                </label>
+                                <input type="password" class="form-control" name="password" placeholder="<#if user??>留空则保持原密码<#else>请输入密码</#if>" <#if user??><#else>required</#if>>
+                                <p class="help-text"><#if user??>不填写则保持原密码不变<#else>建议使用强密码</#if></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    角色 <span class="required-mark">*</span>
+                                </label>
+                                <select class="form-select" name="role" required>
+                                    <option value="">请选择角色</option>
+                                    <option value="ADMIN" <#if user?? && user.role == "ADMIN">selected</#if>>管理员</option>
+                                    <option value="SUPER_ADMIN" <#if user?? && user.role == "SUPER_ADMIN">selected</#if>>超级管理员</option>
+                                </select>
+                                <p class="help-text">超级管理员可管理所有管理员账号</p>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">状态</label>
+                                <select class="form-select" name="status">
+                                    <option value="1" <#if user?? && user.status == 1>selected</#if>>正常</option>
+                                    <option value="0" <#if user?? && user.status == 0>selected</#if>>禁用</option>
+                                </select>
+                                <p class="help-text">禁用的账号无法登录系统</p>
+                            </div>
+                        </div>
+
+                        <!-- 按钮 -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <hr class="my-4">
+                                <div class="d-flex justify-content-end gap-3">
+                                    <a href="/admin/user/list" class="btn btn-cancel btn-outline-secondary">
+                                        <i class="bi bi-x-lg"></i> 取消
+                                    </a>
+                                    <button type="submit" class="btn btn-save text-white">
+                                        <i class="bi bi-check-lg"></i> 保存
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            fetch('/admin/user/save', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 200) {
+                    alert(data.message);
+                    window.location.href = '/admin/user/list';
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                alert('保存失败');
+            });
+        });
+    </script>
+</body>
+</html>

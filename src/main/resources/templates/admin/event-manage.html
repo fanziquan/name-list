@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史事件管理 - 名人名单管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: #2c3e50;
+        }
+        .sidebar .nav-link {
+            color: #adb5bd;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: #fff;
+            background: #34495e;
+        }
+        .event-card {
+            transition: transform 0.2s;
+        }
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <nav class="col-md-3 col-lg-2 sidebar p-3">
+                <h4 class="text-white mb-4">管理系统</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z"/>
+                                <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z"/>
+                            </svg>
+                            仪表盘
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/hero/list">正面人物管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/villain/list">反面人物管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/event/period/list">时期管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/event/list">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5 4a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1H5Zm-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5ZM5 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1H5Zm0 2a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1H5Z"/>
+                                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2Zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"/>
+                            </svg>
+                            历史事件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/event/relation/list">事件-人物关联</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/user/list">管理员管理</a>
+                    </li>
+                    <li class="nav-item mt-5">
+                        <a class="nav-link text-danger" href="javascript:void(0)" onclick="logout()">退出登录</a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- 主要内容 -->
+            <main class="col-md-9 col-lg-10 p-4" style="background: #f8f9fa;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>历史事件管理</h3>
+                    <a href="/admin/event/add" class="btn btn-primary">添加事件</a>
+                </div>
+                <!-- 搜索 -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form action="/admin/event/list" method="get" class="row g-3">
+                            <div class="col-md-4">
+                                <input type="text" name="keyword" class="form-control" placeholder="搜索事件名称..." value="${keyword!""}">
+                            </div>
+                            <div class="col-md-3">
+                                <select name="period" class="form-select">
+                                    <option value="">全部时期</option>
+                                    <#if periods??>
+                                        <#list periods as p>
+                                            <option value="${p.code}" ${(currentPeriod == p.code)?then('selected','')}>${p.name}</option>
+                                        </#list>
+                                    </#if>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-outline-primary w-100">搜索</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- 列表 -->
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>事件名称</th>
+                                    <th>事件日期</th>
+                                    <th>所属时期</th>
+                                    <th>重要程度</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <#if events?? && events?size gt 0>
+                                    <#list events as event>
+                                        <tr>
+                                            <td><code>${event.id}</code></td>
+                                            <td><strong>${event.name}</strong></td>
+                                            <td>${(event.eventDate)?string('yyyy-MM-dd')}</td>
+                                            <td><span class="badge bg-secondary">${event.periodCode}</span></td>
+                                            <td>
+                                                <#if event.significance == 'MAJOR'>
+                                                    <span class="badge bg-danger">重大</span>
+                                                <#else>
+                                                    <span class="badge bg-secondary">普通</span>
+                                                </#if>
+                                            </td>
+                                            <td>
+                                                <a href="/admin/event/edit/${event.id}" class="btn btn-sm btn-outline-primary">编辑</a>
+                                                <button onclick="deleteEvent('${event.id}')" class="btn btn-sm btn-outline-danger">删除</button>
+                                            </td>
+                                        </tr>
+                                    </#list>
+                                <#else>
+                                    <tr>
+                                        <td colspan="6" class="text-center">暂无数据</td>
+                                    </tr>
+                                </#if>
+                            </tbody>
+                        </table>
+                        <!-- 分页 -->
+                        <#if totalPages gt 1>
+                            <nav>
+                                <ul class="pagination justify-content-center">
+                                    <#list 1..totalPages as p>
+                                        <li class="page-item ${(p == currentPage)?then('active','')}">
+                                            <a class="page-link" href="/admin/event/list?page=${p}<#if currentPeriod??>&period=${currentPeriod}</#if>">${p}</a>
+                                        </li>
+                                    </#list>
+                                </ul>
+                            </nav>
+                        </#if>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function deleteEvent(id) {
+            if (confirm('确定要删除此事件吗？相关的关联信息也会被删除。')) {
+                fetch('/admin/event/delete/' + id, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === 200) {
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+            }
+        }
+        function logout() {
+            fetch('/api/auth/logout', { method: 'POST' })
+                .then(() => window.location.href = '/admin/login');
+        }
+    </script>
+</body>
+</html>
