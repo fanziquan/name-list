@@ -54,13 +54,6 @@ public class DictionaryService {
     }
 
     /**
-     * 根据ID获取字典项
-     */
-    public Dictionary getById(Long id) {
-        return dictionaryMapper.selectById(id);
-    }
-
-    /**
      * 根据字典编码和字典项获取字典项
      */
     public Dictionary getByDictCodeAndItem(String dictCode, String dictItem) {
@@ -110,67 +103,18 @@ public class DictionaryService {
     public boolean update(Dictionary dictionary) {
         try {
             dictionary.setUpdateTime(new Date());
-            return dictionaryMapper.updateById(dictionary) > 0;
+            // 使用 dictCode + dictItem 作为条件更新
+            LambdaUpdateWrapper<Dictionary> wrapper = new LambdaUpdateWrapper<>();
+            wrapper.eq(Dictionary::getDictCode, dictionary.getDictCode())
+                   .eq(Dictionary::getDictItem, dictionary.getDictItem())
+                   .set(Dictionary::getDictName, dictionary.getDictName())
+                   .set(Dictionary::getItemName, dictionary.getItemName())
+                   .set(Dictionary::getMark, dictionary.getMark())
+                   .set(Dictionary::getStatus, dictionary.getStatus())
+                   .set(Dictionary::getUpdateTime, new Date());
+            return dictionaryMapper.update(wrapper) > 0;
         } catch (Exception e) {
             logger.error("更新字典项失败", e);
-            return false;
-        }
-    }
-
-    /**
-     * 删除字典项
-     */
-    @Transactional
-    public boolean delete(Long id) {
-        try {
-            return dictionaryMapper.deleteById(id) > 0;
-        } catch (Exception e) {
-            logger.error("删除字典项失败", e);
-            return false;
-        }
-    }
-
-    /**
-     * 切换启用/禁用状态
-     */
-    @Transactional
-    public boolean toggleStatus(Long id) {
-        try {
-            Dictionary dictionary = dictionaryMapper.selectById(id);
-            if (dictionary == null) {
-                return false;
-            }
-            String newStatus = "1".equals(dictionary.getStatus()) ? "0" : "1";
-            LambdaUpdateWrapper<Dictionary> wrapper = new LambdaUpdateWrapper<>();
-            wrapper.eq(Dictionary::getId, id)
-                   .set(Dictionary::getStatus, newStatus)
-                   .set(Dictionary::getUpdateTime, new Date());
-            return dictionaryMapper.update(wrapper) > 0;
-        } catch (Exception e) {
-            logger.error("切换状态失败", e);
-            return false;
-        }
-    }
-
-    /**
-     * 根据字典编码和字典项切换状态
-     */
-    @Transactional
-    public boolean toggleStatusByCodeAndItem(String dictCode, String dictItem) {
-        try {
-            Dictionary dictionary = getByDictCodeAndItem(dictCode, dictItem);
-            if (dictionary == null) {
-                return false;
-            }
-            String newStatus = "1".equals(dictionary.getStatus()) ? "0" : "1";
-            LambdaUpdateWrapper<Dictionary> wrapper = new LambdaUpdateWrapper<>();
-            wrapper.eq(Dictionary::getDictCode, dictCode)
-                   .eq(Dictionary::getDictItem, dictItem)
-                   .set(Dictionary::getStatus, newStatus)
-                   .set(Dictionary::getUpdateTime, new Date());
-            return dictionaryMapper.update(wrapper) > 0;
-        } catch (Exception e) {
-            logger.error("切换状态失败", e);
             return false;
         }
     }
@@ -195,9 +139,12 @@ public class DictionaryService {
      * 批量删除字典项
      */
     @Transactional
-    public int batchDelete(List<Long> ids) {
+    public int batchDelete(List<String> codes) {
         try {
-            return dictionaryMapper.deleteBatchIds(ids);
+            // 使用字典编码批量删除
+            LambdaQueryWrapper<Dictionary> wrapper = new LambdaQueryWrapper<>();
+            wrapper.in(Dictionary::getDictCode, codes);
+            return dictionaryMapper.delete(wrapper);
         } catch (Exception e) {
             logger.error("批量删除字典项失败", e);
             return 0;
