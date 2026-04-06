@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 数据字典服务类
@@ -69,7 +70,7 @@ public class DictionaryService {
               .groupBy(Dictionary::getDictCode, Dictionary::getDictName)
               .orderByAsc(Dictionary::getDictCode);
         List<Dictionary> list = dictionaryMapper.selectList(wrapper);
-        return list.stream().map(Dictionary::getDictCode).toList();
+        return list.stream().map(Dictionary::getDictCode).collect(Collectors.toList());
     }
 
     /**
@@ -112,7 +113,7 @@ public class DictionaryService {
                    .set(Dictionary::getMark, dictionary.getMark())
                    .set(Dictionary::getStatus, dictionary.getStatus())
                    .set(Dictionary::getUpdateTime, new Date());
-            return dictionaryMapper.update(wrapper) > 0;
+            return dictionaryMapper.update(null, wrapper) > 0;
         } catch (Exception e) {
             logger.error("更新字典项失败", e);
             return false;
