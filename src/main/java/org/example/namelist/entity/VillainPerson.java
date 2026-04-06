@@ -47,6 +47,9 @@ public class VillainPerson implements Serializable {
     /** 状态: 1-显示, 0-隐藏 */
     private Integer status;
 
+    /** 点踩数 */
+    private Integer dislikes;
+
     /** 创建时间 */
     private LocalDateTime createTime;
 
@@ -141,6 +144,14 @@ public class VillainPerson implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getDislikes() {
+        return dislikes;
+    }
+
+    public void setDislikes(Integer dislikes) {
+        this.dislikes = dislikes;
     }
 
     public LocalDateTime getCreateTime() {

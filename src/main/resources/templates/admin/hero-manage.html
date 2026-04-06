@@ -133,6 +133,7 @@
                             <th>分类</th>
                             <th>生卒年</th>
                             <th>国籍</th>
+                            <th>点赞数</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -145,6 +146,7 @@
                                     <td><span class="badge bg-primary"><#if categoryNames??>${categoryNames[hero.category]!hero.category}<#else>${hero.category}</#if></span></td>
                                     <td>${hero.lifeSpan!""}</td>
                                     <td>${hero.nationality!""}</td>
+                                    <td><span class="badge bg-danger"><i class="bi bi-heart-fill"></i> ${hero.likes!0}</span></td>
                                     <td>
                                         <a href="/admin/hero/edit/${hero.id}" class="btn btn-sm btn-outline-primary">编辑</a>
                                         <button onclick="deleteHero('${hero.id}')" class="btn btn-sm btn-outline-danger">删除</button>
@@ -153,7 +155,7 @@
                             </#list>
                         <#else>
                             <tr>
-                                <td colspan="6" class="text-center">暂无数据</td>
+                                <td colspan="7" class="text-center">暂无数据</td>
                             </tr>
                         </#if>
                     </tbody>

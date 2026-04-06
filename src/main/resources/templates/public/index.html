@@ -105,6 +105,39 @@
         .person-list::-webkit-scrollbar-thumb:hover {
             background: #999;
         }
+        .vote-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.2s;
+            color: #666;
+        }
+        .vote-btn.like {
+            color: #dc3545;
+        }
+        .vote-btn.like:hover {
+            background: #fce4ec;
+        }
+        .vote-btn.dislike {
+            color: #0d6efd;
+        }
+        .vote-btn.dislike:hover {
+            background: #e7f1ff;
+        }
+        .vote-btn.voted {
+            color: #ccc !important;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .vote-count {
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -281,22 +314,39 @@
                 if (result.code === 200 && result.data && result.data.length > 0) {
                     let html = '';
                     result.data.forEach(function(person) {
-                        const personName = person.name || '未知';
-                        const url = type === 'hero' ? '/hero/' + person.id : '/villain/' + person.id;
+                        const personName = escapeHtml(person.name || '未知');
+                        const url = type === 'hero' ? '/hero/' + escapeHtml(person.id) : '/villain/' + escapeHtml(person.id);
                         const lifeSpan = (person.birthYear || person.deathYear)
                             ? (person.birthYear || '?') + ' - ' + (person.deathYear || '?')
                             : '';
                         const initial = personName.charAt(0).toUpperCase();
+
+                        // 投票按钮
+                        let voteHtml = '';
+                        if (type === 'hero') {
+                            const likes = person.likes || 0;
+                            voteHtml = '<button class="vote-btn like" onclick="likeHero(\'' + person.id + '\', this)" data-id="' + person.id + '">' +
+                                '<i class="bi bi-heart-fill"></i> <span class="vote-count">' + likes + '</span></button>';
+                        } else {
+                            const dislikes = person.dislikes || 0;
+                            voteHtml = '<button class="vote-btn dislike" onclick="dislikeVillain(\'' + person.id + '\', this)" data-id="' + person.id + '">' +
+                                '<i class="bi bi-hand-thumbs-down-fill"></i> <span class="vote-count">' + dislikes + '</span></button>';
+                        }
 
                         html += '<div class="person-item">' +
                             '<div class="person-info">' +
                             '<div class="person-avatar">' + initial + '</div>' +
                             '<a href="' + url + '" class="person-name">' + personName + '</a>' +
                             '</div>' +
+                            '<div style="display:flex;align-items:center;gap:8px;">' +
                             (lifeSpan ? '<span class="person-life">' + lifeSpan + '</span>' : '') +
+                            voteHtml +
+                            '</div>' +
                             '</div>';
                     });
                     container.innerHTML = html;
+                    // 恢复投票状态
+                    restoreVoteState(type);
                 } else {
                     container.innerHTML = '<div class="empty-message"><i class="bi bi-inbox"></i><p class="mb-0">暂无数据</p></div>';
                 }
@@ -318,6 +368,97 @@
                 loadPersons('villain', cat.code, 'villain-' + cat.code);
             });
         });
+
+        // ==================== 投票功能 ====================
+
+        // HTML转义函数，防止XSS攻击
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 获取Cookie中的投票记录
+        function getVoteCookie() {
+            const match = document.cookie.match(/(?:^|; )votes=([^;]*)/);
+            if (match) {
+                try {
+                    return JSON.parse(decodeURIComponent(match[1]));
+                } catch (e) {
+                    return { liked: [], disliked: [] };
+                }
+            }
+            return { liked: [], disliked: [] };
+        }
+
+        // 保存投票记录到Cookie
+        function saveVoteCookie(votes) {
+            const expires = new Date();
+            expires.setFullYear(expires.getFullYear() + 1);
+            document.cookie = 'votes=' + encodeURIComponent(JSON.stringify(votes)) + ';expires=' + expires.toUTCString() + ';path=/';
+        }
+
+        // 恢复投票状态（页面加载后调用）
+        function restoreVoteState(type) {
+            const votes = getVoteCookie();
+            const list = type === 'hero' ? votes.liked : votes.disliked;
+            list.forEach(function(id) {
+                const btn = document.querySelector('[data-id="' + id + '"]');
+                if (btn) {
+                    btn.classList.add('voted');
+                    btn.onclick = null;
+                }
+            });
+        }
+
+        // 正面人物点赞
+        async function likeHero(id, btn) {
+            try {
+                const response = await fetch('/api/vote/like/' + id, { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    btn.querySelector('.vote-count').textContent = result.likes;
+                    btn.classList.add('voted');
+                    btn.onclick = null;
+                    // 保存到Cookie
+                    const votes = getVoteCookie();
+                    if (!votes.liked.includes(id)) {
+                        votes.liked.push(id);
+                        saveVoteCookie(votes);
+                    }
+                } else {
+                    alert(result.message || '点赞失败');
+                }
+            } catch (error) {
+                console.error('点赞失败:', error);
+                alert('网络错误，请重试');
+            }
+        }
+
+        // 反面人物点踩
+        async function dislikeVillain(id, btn) {
+            try {
+                const response = await fetch('/api/vote/dislike/' + id, { method: 'POST' });
+                const result = await response.json();
+                if (result.success) {
+                    btn.querySelector('.vote-count').textContent = result.dislikes;
+                    btn.classList.add('voted');
+                    btn.onclick = null;
+                    // 保存到Cookie
+                    const votes = getVoteCookie();
+                    if (!votes.disliked.includes(id)) {
+                        votes.disliked.push(id);
+                        saveVoteCookie(votes);
+                    }
+                } else {
+                    alert(result.message || '点踩失败');
+                }
+            } catch (error) {
+                console.error('点踩失败:', error);
+                alert('网络错误，请重试');
+            }
+        }
     </script>
 </body>
 </html>

@@ -133,6 +133,7 @@
                             <th>分类</th>
                             <th>生卒年</th>
                             <th>国籍</th>
+                            <th>点踩数</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -145,6 +146,7 @@
                                     <td><span class="badge bg-danger"><#if categoryNames??>${categoryNames[villain.category]!villain.category}<#else>${villain.category}</#if></span></td>
                                     <td>${villain.lifeSpan!""}</td>
                                     <td>${villain.nationality!""}</td>
+                                    <td><span class="badge bg-primary"><i class="bi bi-hand-thumbs-down-fill"></i> ${villain.dislikes!0}</span></td>
                                     <td>
                                         <a href="/admin/villain/edit/${villain.id}" class="btn btn-sm btn-outline-danger">编辑</a>
                                         <button onclick="deleteVillain('${villain.id}')" class="btn btn-sm btn-outline-secondary">删除</button>
@@ -153,7 +155,7 @@
                             </#list>
                         <#else>
                             <tr>
-                                <td colspan="6" class="text-center">暂无数据</td>
+                                <td colspan="7" class="text-center">暂无数据</td>
                             </tr>
                         </#if>
                     </tbody>

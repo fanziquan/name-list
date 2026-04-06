@@ -48,6 +48,9 @@ public class HeroPerson implements Serializable {
     /** 状态: 1-显示, 0-隐藏 */
     private Integer status;
 
+    /** 点赞数 */
+    private Integer likes;
+
     /** 创建时间 */
     private LocalDateTime createTime;
 
@@ -142,6 +145,14 @@ public class HeroPerson implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Integer likes) {
+        this.likes = likes;
     }
 
     public LocalDateTime getCreateTime() {

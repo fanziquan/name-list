@@ -6,6 +6,8 @@ import org.example.namelist.entity.PersonExtend;
 import org.example.namelist.entity.VillainPerson;
 import org.example.namelist.service.OssService;
 import org.example.namelist.service.PersonService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +24,8 @@ import java.util.Map;
  */
 @Controller
 public class PublicController {
+
+    private static final Logger logger = LoggerFactory.getLogger(PublicController.class);
 
     @Autowired
     private PersonService personService;
@@ -298,6 +302,52 @@ public class PublicController {
 
         result.put("code", 200);
         result.put("data", villains);
+        return result;
+    }
+
+    // ==================== 投票API ====================
+
+    /**
+     * API: 正面人物点赞
+     */
+    @ResponseBody
+    @PostMapping("/api/vote/like/{id}")
+    public Map<String, Object> likeHero(@PathVariable String id) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            int newLikes = personService.likeHero(id);
+            result.put("success", true);
+            result.put("likes", newLikes);
+        } catch (IllegalArgumentException e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        } catch (Exception e) {
+            logger.error("点赞失败, id={}", id, e);
+            result.put("success", false);
+            result.put("message", "操作失败，请稍后重试");
+        }
+        return result;
+    }
+
+    /**
+     * API: 反面人物点踩
+     */
+    @ResponseBody
+    @PostMapping("/api/vote/dislike/{id}")
+    public Map<String, Object> dislikeVillain(@PathVariable String id) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            int newDislikes = personService.dislikeVillain(id);
+            result.put("success", true);
+            result.put("dislikes", newDislikes);
+        } catch (IllegalArgumentException e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        } catch (Exception e) {
+            logger.error("点踩失败, id={}", id, e);
+            result.put("success", false);
+            result.put("message", "操作失败，请稍后重试");
+        }
         return result;
     }
 }

@@ -1,5 +1,6 @@
 package org.example.namelist.service;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.example.namelist.entity.*;
 import org.example.namelist.mapper.*;
 import org.slf4j.Logger;
@@ -343,5 +344,47 @@ public class PersonService {
      */
     public boolean deletePhoto(String photoUrl) {
         return ossService.deleteFile(photoUrl);
+    }
+
+    // ==================== 投票操作 ====================
+
+    /**
+     * 正面人物点赞（原子递增）
+     */
+    @Transactional
+    public int likeHero(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("人物ID不能为空");
+        }
+        LambdaUpdateWrapper<HeroPerson> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(HeroPerson::getId, id)
+               .setSql("likes = likes + 1");
+        int rows = heroPersonMapper.update(null, wrapper);
+        if (rows > 0) {
+            HeroPerson updated = heroPersonMapper.selectById(id);
+            logger.info("正面人物点赞: {} - 当前点赞数: {}", id, updated.getLikes());
+            return updated != null ? updated.getLikes() : 0;
+        }
+        return 0;
+    }
+
+    /**
+     * 反面人物点踩（原子递增）
+     */
+    @Transactional
+    public int dislikeVillain(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("人物ID不能为空");
+        }
+        LambdaUpdateWrapper<VillainPerson> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(VillainPerson::getId, id)
+               .setSql("dislikes = dislikes + 1");
+        int rows = villainPersonMapper.update(null, wrapper);
+        if (rows > 0) {
+            VillainPerson updated = villainPersonMapper.selectById(id);
+            logger.info("反面人物点踩: {} - 当前点踩数: {}", id, updated.getDislikes());
+            return updated != null ? updated.getDislikes() : 0;
+        }
+        return 0;
     }
 }

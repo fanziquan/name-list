@@ -59,6 +59,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/admin/login", "/api/auth/toLogin", "/api/auth/login", "/api/auth/logout", "/api/auth/check").permitAll()
                 // 允许访问人物 API 接口（前台首页加载数据用）
                 .antMatchers("/api/hero", "/api/villain").permitAll()
+                // 允许访问投票 API 接口
+                .antMatchers("/api/vote/**").permitAll()
                 // 其他请求需要认证
                 .anyRequest().authenticated()
             .and()
