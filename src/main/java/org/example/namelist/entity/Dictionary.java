@@ -1,8 +1,7 @@
 package org.example.namelist.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,17 +9,14 @@ import java.util.Date;
 
 /**
  * 数据字典实体类
+ * 联合主键：dictCode + dictItem
  */
 @Data
 @TableName("dictionary")
 public class Dictionary implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 主键ID */
-    @TableId(type = IdType.AUTO)
-    private Long id;
-
-    /** 字典编码 */
+    /** 字典编码（联合主键） */
     private String dictCode;
 
     /** 字典中文名称 */

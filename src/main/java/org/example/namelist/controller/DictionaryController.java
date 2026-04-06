@@ -76,11 +76,14 @@ public class DictionaryController {
     }
 
     /**
-     * 编辑字典页
+     * 编辑字典页（通过 dictCode + dictItem 查询）
      */
-    @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
-        Dictionary dictionary = dictionaryService.getById(id);
+    @GetMapping("/edit")
+    public String edit(
+            @RequestParam String dictCode,
+            @RequestParam String dictItem,
+            Model model) {
+        Dictionary dictionary = dictionaryService.getByDictCodeAndItem(dictCode, dictItem);
         if (dictionary == null) {
             return "redirect:/admin/dictionary/list";
         }
@@ -92,32 +95,40 @@ public class DictionaryController {
     }
 
     /**
-     * 保存字典
+     * 保存字典（dictCode + dictItem 联合主键）
      */
     @ResponseBody
     @PostMapping("/save")
     public Map<String, Object> save(Dictionary dictionary) {
         Map<String, Object> result = new HashMap<>();
         try {
-            if (dictionary.getId() == null) {
-                // 新增
-                boolean success = dictionaryService.add(dictionary);
-                if (success) {
-                    result.put("code", 200);
-                    result.put("message", "添加成功");
-                } else {
-                    result.put("code", 500);
-                    result.put("message", "添加失败，字典项已存在");
-                }
-            } else {
-                // 更新
-                boolean success = dictionaryService.update(dictionary);
+            // 检查字典项是否已存在
+            Dictionary existing = dictionaryService.getByDictCodeAndItem(
+                dictionary.getDictCode(), dictionary.getDictItem());
+            
+            if (existing != null) {
+                // 已存在则更新
+                existing.setDictName(dictionary.getDictName());
+                existing.setItemName(dictionary.getItemName());
+                existing.setMark(dictionary.getMark());
+                existing.setStatus(dictionary.getStatus());
+                boolean success = dictionaryService.update(existing);
                 if (success) {
                     result.put("code", 200);
                     result.put("message", "更新成功");
                 } else {
                     result.put("code", 500);
                     result.put("message", "更新失败");
+                }
+            } else {
+                // 不存在则新增
+                boolean success = dictionaryService.add(dictionary);
+                if (success) {
+                    result.put("code", 200);
+                    result.put("message", "添加成功");
+                } else {
+                    result.put("code", 500);
+                    result.put("message", "添加失败");
                 }
             }
         } catch (Exception e) {
@@ -131,11 +142,19 @@ public class DictionaryController {
      * 删除字典
      */
     @ResponseBody
-    @PostMapping("/delete/{id}")
-    public Map<String, Object> delete(@PathVariable Long id) {
+    @PostMapping("/delete")
+    public Map<String, Object> delete(
+            @RequestParam String dictCode,
+            @RequestParam String dictItem) {
         Map<String, Object> result = new HashMap<>();
         try {
-            boolean success = dictionaryService.delete(id);
+            Dictionary dictionary = dictionaryService.getByDictCodeAndItem(dictCode, dictItem);
+            if (dictionary == null) {
+                result.put("code", 500);
+                result.put("message", "字典项不存在");
+                return result;
+            }
+            boolean success = dictionaryService.deleteByCodeAndItem(dictCode, dictItem);
             if (success) {
                 result.put("code", 200);
                 result.put("message", "删除成功");
@@ -154,11 +173,19 @@ public class DictionaryController {
      * 切换状态
      */
     @ResponseBody
-    @PostMapping("/toggle/{id}")
-    public Map<String, Object> toggleStatus(@PathVariable Long id) {
+    @PostMapping("/toggle")
+    public Map<String, Object> toggleStatus(
+            @RequestParam String dictCode,
+            @RequestParam String dictItem) {
         Map<String, Object> result = new HashMap<>();
         try {
-            boolean success = dictionaryService.toggleStatus(id);
+            Dictionary dictionary = dictionaryService.getByDictCodeAndItem(dictCode, dictItem);
+            if (dictionary == null) {
+                result.put("code", 500);
+                result.put("message", "字典项不存在");
+                return result;
+            }
+            boolean success = dictionaryService.toggleStatusByCodeAndItem(dictCode, dictItem);
             if (success) {
                 result.put("code", 200);
                 result.put("message", "状态切换成功");

@@ -153,6 +153,45 @@ public class DictionaryService {
     }
 
     /**
+     * 根据字典编码和字典项切换状态
+     */
+    @Transactional
+    public boolean toggleStatusByCodeAndItem(String dictCode, String dictItem) {
+        try {
+            Dictionary dictionary = getByDictCodeAndItem(dictCode, dictItem);
+            if (dictionary == null) {
+                return false;
+            }
+            String newStatus = "1".equals(dictionary.getStatus()) ? "0" : "1";
+            LambdaUpdateWrapper<Dictionary> wrapper = new LambdaUpdateWrapper<>();
+            wrapper.eq(Dictionary::getDictCode, dictCode)
+                   .eq(Dictionary::getDictItem, dictItem)
+                   .set(Dictionary::getStatus, newStatus)
+                   .set(Dictionary::getUpdateTime, new Date());
+            return dictionaryMapper.update(wrapper) > 0;
+        } catch (Exception e) {
+            logger.error("切换状态失败", e);
+            return false;
+        }
+    }
+
+    /**
+     * 根据字典编码和字典项删除
+     */
+    @Transactional
+    public boolean deleteByCodeAndItem(String dictCode, String dictItem) {
+        try {
+            LambdaQueryWrapper<Dictionary> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Dictionary::getDictCode, dictCode)
+                   .eq(Dictionary::getDictItem, dictItem);
+            return dictionaryMapper.delete(wrapper) > 0;
+        } catch (Exception e) {
+            logger.error("删除字典项失败", e);
+            return false;
+        }
+    }
+
+    /**
      * 批量删除字典项
      */
     @Transactional

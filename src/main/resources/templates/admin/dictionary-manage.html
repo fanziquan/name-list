@@ -82,11 +82,11 @@
                                                 </#if>
                                             </td>
                                             <td>
-                                                <a href="/admin/dictionary/edit/${dict.id}" class="btn btn-sm btn-outline-primary">编辑</a>
-                                                <button onclick="toggleStatus('${dict.id}')" class="btn btn-sm btn-outline-warning">
+                                                <a href="/admin/dictionary/edit?dictCode=${dict.dictCode}&dictItem=${dict.dictItem}" class="btn btn-sm btn-outline-primary">编辑</a>
+                                                <button onclick="toggleStatus('${dict.dictCode}', '${dict.dictItem}')" class="btn btn-sm btn-outline-warning">
                                                     ${dict.status == '1'?string('禁用', '启用')}
                                                 </button>
-                                                <button onclick="deleteDict('${dict.id}')" class="btn btn-sm btn-outline-danger">删除</button>
+                                                <button onclick="deleteDict('${dict.dictCode}', '${dict.dictItem}')" class="btn btn-sm btn-outline-danger">删除</button>
                                             </td>
                                         </tr>
                                     </#list>
@@ -104,9 +104,10 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function deleteDict(id) {
+        function deleteDict(dictCode, dictItem) {
             if (confirm('确定要删除此字典项吗？')) {
-                fetch('/admin/dictionary/delete/' + id, { method: 'POST' })
+                const params = new URLSearchParams({ dictCode, dictItem });
+                fetch('/admin/dictionary/delete?' + params.toString(), { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
                         if (data.code === 200) {
@@ -118,9 +119,10 @@
             }
         }
 
-        function toggleStatus(id) {
+        function toggleStatus(dictCode, dictItem) {
             if (confirm('确定要切换此字典项的状态吗？')) {
-                fetch('/admin/dictionary/toggle/' + id, { method: 'POST' })
+                const params = new URLSearchParams({ dictCode, dictItem });
+                fetch('/admin/dictionary/toggle?' + params.toString(), { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
                         if (data.code === 200) {
